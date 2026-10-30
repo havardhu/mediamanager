@@ -1,0 +1,33 @@
+/* Source stack: "Segoe UI", Inter, system-ui / Consolas, monospace.
+   Open Sans + Inconsolata are Google Fonts fallbacks for machines without Segoe UI / Consolas. */
+:root {
+  --font-ui: "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-mono: Consolas, "Inconsolata", ui-monospace, monospace;
+
+  --fs-micro: 8px;     /* caption sub-label */
+  --fs-tag: 9px;       /* eyebrow, training tag, severity */
+  --fs-xs: 10px;       /* section heading, badges, statusbar, coordinates */
+  --fs-sm: 11px;       /* tabs, toolbar, hints, tree-adjacent */
+  --fs-base: 12px;     /* body, controls */
+  --fs-title: 12.5px;  /* titlebar product name */
+  --fs-h2: 17px;       /* dialog title */
+
+  --fw-regular: 400; /* @kind font */
+  --fw-medium: 500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+
+  --lh-tight: 1.5; /* @kind font */
+  --lh-body: 1.6; /* @kind font */
+  --lh-hint: 1.65; /* @kind font */
+
+  --tracking-heading: .7px;
+  --tracking-eyebrow: .8px;
+  --tracking-caption: 1px;
+  --tracking-tag: 1.2px;
+
+  /* Semantic */
+  --type-body: var(--fw-regular) var(--fs-base)/var(--lh-tight) var(--font-ui);
+  --type-hint: var(--fw-regular) var(--fs-sm)/var(--lh-hint) var(--font-ui);
+  --type-section: var(--fw-semibold) var(--fs-xs)/1.2 var(--font-ui);
+  --type-dialog-title: var(--fw-semibold) var(--fs-h2)/1.3 var(--font-ui);
+}

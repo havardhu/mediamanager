@@ -1,0 +1,11 @@
+:root {
+  --shadow-caption: 0 3px 18px #0002;
+  --shadow-popover: 0 5px 24px #0003;
+  --shadow-modal: 0 20px 80px #0005;
+  --backdrop-blur: blur(3px); /* @kind other */
+  --focus-ring: 2px solid var(--accent);
+  --focus-offset: -2px;
+  --opacity-disabled: .42; /* @kind other */
+  --opacity-filter-off: .6; /* @kind other */
+  --primary-hover-filter: brightness(1.1); /* @kind other */
+}

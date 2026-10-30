@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/tokens/colors.css">
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/tokens/typography.css">
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/tokens/effects.css">
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/tokens/base.css">
+<link rel="stylesheet" href="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/styles.css">
+<script src="_ds/workbench-design-system-7eab5cc4-82a6-46b0-9ee9-ec440fdb9721/_ds_bundle.js"></script>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:var(--bg)}a{color:var(--accent)}a:hover{color:var(--text)}</style>
+</helmet>
+<div style="height:100vh;min-width:760px;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:12px;overflow:hidden">
+<x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Titlebar" icon="HardDrive" title="Seedbox Sync" context="{{ hostLabel }}" tag="127.0.0.1:8742" hint-size="100%,40px"></x-import>
+<x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.CommandBar" label="Commands" hint-size="100%,43px">
+  <sc-if value="{{ isSeedbox }}" hint-placeholder-val="{{ true }}">
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="RefreshCw" disabled="{{ notConnected }}" onClick="{{ refresh }}" hint-size="auto,29px">Refresh</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Separator" hint-size="1px,22px"></x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Download" disabled="{{ cmd.cantDownload }}" onClick="{{ download }}" hint-size="auto,29px">{{ cmd.downloadLabel }}</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="danger" icon="Trash2" disabled="{{ cmd.cantDelete }}" onClick="{{ askDelete }}" hint-size="auto,29px">Delete from seedbox</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Separator" hint-size="1px,22px"></x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="{{ pauseIcon }}" onClick="{{ togglePause }}" hint-size="auto,29px">{{ pauseLabel }}</x-import>
+  </sc-if>
+  <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="RefreshCw" disabled="{{ notConnected }}" onClick="{{ scanLibrary }}" hint-size="auto,29px">Scan library</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Separator" hint-size="1px,22px"></x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Play" disabled="{{ libCmd.noPlay }}" onClick="{{ playSel }}" hint-size="auto,29px">Play</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="Search" disabled="{{ libCmd.noSel }}" onClick="{{ openFix }}" hint-size="auto,29px">Fix match</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="MessageSquare" disabled="{{ libCmd.noSubs }}" onClick="{{ fetchSubs }}" hint-size="auto,29px">Fetch subtitles</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="RotateCw" disabled="{{ libCmd.noSel }}" onClick="{{ refreshMeta }}" hint-size="auto,29px">Refresh metadata</x-import>
+  </sc-if>
+  <sc-if value="{{ isServers }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Plus" disabled="{{ mvp }}" onClick="{{ openAdd }}" hint-size="auto,29px">Add media server</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="Save" disabled="{{ srvCmd.clean }}" onClick="{{ saveServer }}" hint-size="auto,29px">Save server</x-import>
+  </sc-if>
+  <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Save" disabled="{{ set.clean }}" onClick="{{ saveSettings }}" hint-size="auto,29px">Save changes</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="Undo2" disabled="{{ set.clean }}" onClick="{{ revertSettings }}" hint-size="auto,29px">Revert</x-import>
+  </sc-if>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Spacer" hint-size="1px,1px"></x-import>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.IconButton" icon="{{ themeIcon }}" label="{{ themeLabel }}" onClick="{{ toggleTheme }}" hint-size="29px,29px"></x-import>
+</x-import>
+<sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Notification" tone="{{ msgTone }}" onDismiss="{{ dismiss }}" hint-size="100%,34px">{{ msgText }}</x-import>
+</sc-if>
+<div style="flex:1;min-height:0;display:flex">
+  <aside style="width:{{ sideW }};flex:none;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border);min-height:0">
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SidebarTabs" tabs="{{ tabs }}" value="{{ tab }}" onChange="{{ setTab }}" hint-size="100%,38px"></x-import>
+    <sc-if value="{{ isSeedbox }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:12px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)">Seedbox storage</span>
+          <span style="font-size:11px;color:var(--text)">{{ cap.usedLabel }}</span>
+        </div>
+        <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--bg);border:1px solid var(--border)">
+          <div style="background:var(--status-ready);width:{{ cap.syncedPct }}"></div>
+          <div style="background:var(--accent);width:{{ cap.remotePct }}"></div>
+          <div style="background:var(--muted);opacity:.45;width:{{ cap.otherPct }}"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
+          <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:var(--status-ready)"></span><span style="color:var(--muted);flex:1">On a media server</span><span>{{ cap.synced }}</span></div>
+          <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:var(--accent)"></span><span style="color:var(--muted);flex:1">Seedbox only</span><span>{{ cap.remote }}</span></div>
+          <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:var(--muted);opacity:.45"></span><span style="color:var(--muted);flex:1">Outside media root</span><span>{{ cap.other }}</span></div>
+          <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;border:1px solid var(--border);box-sizing:border-box"></span><span style="color:var(--muted);flex:1">Free</span><span>{{ cap.free }}</span></div>
+        </div>
+        <sc-if value="{{ cap.warn }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;line-height:1.65;color:var(--warning)">{{ cap.warnText }}</div></sc-if>
+      </div>
+      <div style="padding:10px 12px 6px">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SearchBox" value="{{ q }}" onChange="{{ setQ }}" placeholder="Filter folders..." label="Filter folders" hint-size="100%,29px"></x-import>
+      </div>
+      <div style="flex:1;overflow:auto;padding-bottom:8px">
+        <sc-for list="{{ tree }}" as="g" hint-placeholder-count="3">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeGroup" icon="Folder" label="{{ g.label }}" count="{{ g.count }}" expanded="{{ g.expanded }}" onToggle="{{ g.onToggle }}" hint-size="100%,30px"></x-import>
+          <sc-if value="{{ g.expanded }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeItem" icon="{{ it.icon }}" label="{{ it.label }}" selected="{{ it.selected }}" onClick="{{ it.onClick }}" hint-size="100%,30px"></x-import>
+            </sc-for>
+          </sc-if>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;overflow:auto;padding:6px 0">
+        <sc-if value="{{ multi }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 12px 12px;display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--muted);font-size:11px">Media server</span>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Select" value="{{ libServer }}" options="{{ serverOptions }}" onChange="{{ setLibServer }}" hint-size="100%,29px"></x-import>
+          </div>
+        </sc-if>
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeGroup" icon="Layers" label="Media type" expanded="{{ true }}" hint-size="100%,30px"></x-import>
+        <sc-for list="{{ libTypes }}" as="it" hint-placeholder-count="4">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeItem" icon="{{ it.icon }}" label="{{ it.label }}" selected="{{ it.selected }}" onClick="{{ it.onClick }}" hint-size="100%,30px"></x-import>
+        </sc-for>
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeGroup" icon="Tag" label="Match status" expanded="{{ true }}" hint-size="100%,30px"></x-import>
+        <sc-for list="{{ libMatches }}" as="it" hint-placeholder-count="3">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeItem" icon="{{ it.icon }}" label="{{ it.label }}" selected="{{ it.selected }}" error="{{ it.error }}" onClick="{{ it.onClick }}" hint-size="100%,30px"></x-import>
+        </sc-for>
+        <div style="padding:14px 12px 0">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,60px">Matches come from TMDB (movies) and TVDB (series). Audiobooks use embedded tags. Artwork and .nfo files are written next to the media; file names stay as they are on the seedbox.</x-import>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isServers }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;overflow:auto;padding:6px 0;display:flex;flex-direction:column">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeGroup" icon="Monitor" label="Media servers" count="{{ srvCount }}" expanded="{{ true }}" hint-size="100%,30px"></x-import>
+        <sc-for list="{{ srvList }}" as="s" hint-placeholder-count="1">
+          <button type="button" onClick="{{ s.onClick }}" style="display:flex;align-items:center;gap:9px;width:100%;min-height:44px;border:0;padding:6px 14px 6px 38px;font-family:inherit;text-align:left;cursor:pointer;color:var(--text);background:{{ s.bg }}" style-hover="background:var(--surface-3)">
+            <span style="color:var(--accent);display:flex"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="Monitor" size="{{ 14 }}" hint-size="14px,14px"></x-import></span>
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:12px;font-weight:600">{{ s.name }}</span>
+              <span style="font-size:11px;color:var(--muted)">{{ s.desc }}</span>
+            </span>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="{{ s.dot }}" label="{{ s.status }}" hint-size="5px,5px"></x-import>
+          </button>
+        </sc-for>
+        <sc-if value="{{ mvp }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:14px 12px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,60px">This version mirrors to this PC only. Remote media servers connect through the Seedbox Sync agent, planned for a later release.</x-import>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;overflow:auto;padding:6px 0">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeGroup" icon="Settings" label="Settings" expanded="{{ true }}" hint-size="100%,30px"></x-import>
+        <sc-for list="{{ setNav }}" as="it" hint-placeholder-count="4">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TreeItem" icon="{{ it.icon }}" label="{{ it.label }}" selected="{{ it.selected }}" onClick="{{ it.onClick }}" hint-size="100%,30px"></x-import>
+        </sc-for>
+      </div>
+    </sc-if>
+  </aside>
+  <main style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--bg)">
+    <sc-if value="{{ isSeedbox }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Seedbox" style="flex:1;min-height:0;display:flex;flex-direction:column">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Toolbar" label="Folder navigation" hint-size="100%,38px">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.IconButton" icon="ArrowUp" label="Up one folder" size="sm" disabled="{{ atRoot }}" onClick="{{ goUp }}" hint-size="27px,27px"></x-import>
+          <div style="display:flex;align-items:center;gap:2px;min-width:0;overflow:hidden;font-family:var(--font-mono);font-size:11px">
+            <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="2">
+              <sc-if value="{{ c.notFirst }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);display:flex"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="ChevronRight" size="{{ 12 }}" hint-size="12px,12px"></x-import></span></sc-if>
+              <button type="button" onClick="{{ c.onClick }}" style="border:0;background:transparent;font-family:inherit;font-size:11px;padding:3px 5px;border-radius:3px;cursor:pointer;white-space:nowrap;color:{{ c.color }}" style-hover="background:var(--surface-3);color:var(--text)">{{ c.name }}</button>
+            </sc-for>
+          </div>
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Spacer" hint-size="1px,1px"></x-import>
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.ToolButton" icon="{{ f.icon }}" label="{{ f.label }}" showLabel="{{ wide }}" title="{{ f.label }}" active="{{ f.active }}" onClick="{{ f.onClick }}" hint-size="auto,28px"></x-import>
+          </sc-for>
+        </x-import>
+        <sc-if value="{{ connected }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;min-height:0;overflow:auto">
+            <div style="min-width:{{ tableMin }}">
+            <div style="position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;height:28px;padding:0 12px;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)">
+              <div style="width:16px;display:flex" onClick="{{ stop }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Checkbox" label="" checked="{{ allSel }}" indeterminate="{{ someSel }}" onChange="{{ toggleAll }}" hint-size="16px,16px"></x-import></div>
+              <div style="flex:1;min-width:180px">Name</div>
+              <div style="width:78px;text-align:right">Size</div>
+              <div style="width:96px">Modified</div>
+              <sc-for list="{{ servers }}" as="s" hint-placeholder-count="1"><div style="width:118px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.name }}</div></sc-for>
+            </div>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+              <div onClick="{{ r.onClick }}" onDoubleClick="{{ r.onOpen }}" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 12px;border-bottom:1px solid var(--border);cursor:default;user-select:none;background:{{ r.bg }}" style-hover="background:var(--surface-2)">
+                <div style="width:16px;display:flex" onClick="{{ stop }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Checkbox" label="" checked="{{ r.sel }}" onChange="{{ r.onCheck }}" hint-size="16px,16px"></x-import></div>
+                <div style="flex:1;min-width:180px;display:flex;align-items:center;gap:7px">
+                  <span style="display:flex;color:{{ r.iconColor }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="{{ r.icon }}" size="{{ 14 }}" hint-size="14px,14px"></x-import></span>
+                  <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+                  <sc-if value="{{ r.isFolder }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);font-size:11px;white-space:nowrap">{{ r.count }}</span></sc-if>
+                </div>
+                <div style="width:78px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums">{{ r.size }}</div>
+                <div style="width:96px;color:var(--muted);font-size:11px">{{ r.mod }}</div>
+                <sc-for list="{{ r.states }}" as="st" hint-placeholder-count="1">
+                  <div style="width:118px;display:flex;align-items:center;gap:6px;font-size:11px;white-space:nowrap;overflow:hidden">
+                    <sc-if value="{{ st.dot }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="{{ st.dot }}" hint-size="5px,5px"></x-import><span>{{ st.label }}</span></sc-if>
+                    <sc-if value="{{ st.muted }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted)">{{ st.label }}</span></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:28px 16px;color:var(--muted);font-size:11px;text-align:center">{{ noRowsText }}</div>
+            </sc-if>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ notConnected }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.EmptyState" icon="CloudOff" title="Connect your seedbox" hint-size="320px,110px">Enter the FTP or SFTP address and the media root folder. The folders under that root become your library structure.</x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Settings" onClick="{{ openSettings }}" hint-size="auto,29px">Open seedbox settings</x-import>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Library" style="flex:1;min-height:0;display:flex;flex-direction:column">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Toolbar" label="Library" hint-size="100%,38px">
+          <sc-if value="{{ lib.drilled }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.IconButton" icon="ArrowLeft" label="Back" size="sm" onClick="{{ lib.back }}" hint-size="27px,27px"></x-import>
+            <div style="display:flex;align-items:center;gap:2px;min-width:0;overflow:hidden">
+              <sc-for list="{{ lib.crumbs }}" as="c" hint-placeholder-count="2">
+                <sc-if value="{{ c.notFirst }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);display:flex"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="ChevronRight" size="{{ 12 }}" hint-size="12px,12px"></x-import></span></sc-if>
+                <button type="button" onClick="{{ c.onClick }}" style="border:0;background:transparent;font-family:inherit;font-size:11px;padding:3px 5px;border-radius:3px;cursor:pointer;white-space:nowrap;color:{{ c.color }}" style-hover="background:var(--surface-3);color:var(--text)">{{ c.name }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ lib.top }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;color:var(--muted);padding:0 4px">{{ lib.heading }}</span></sc-if>
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Spacer" hint-size="1px,1px"></x-import>
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.CoordinateBadge" hint-size="auto,22px">{{ lib.root }}</x-import>
+        </x-import>
+        <div style="flex:1;min-height:0;overflow:auto;padding:16px">
+          <sc-if value="{{ lib.top }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:16px 14px;align-items:start">
+            <sc-for list="{{ lib.cards }}" as="c" hint-placeholder-count="8">
+              <button type="button" onClick="{{ c.onClick }}" style="display:flex;flex-direction:column;gap:7px;padding:6px;border-radius:4px;border:1px solid {{ c.border }};background:{{ c.bg }};font-family:inherit;text-align:left;cursor:pointer;color:var(--text);min-width:0" style-hover="border-color:var(--muted)">
+                <sc-if value="{{ c.poster }}" hint-placeholder-val="{{ true }}">
+                  <div style="aspect-ratio:{{ c.ratio }};width:100%;border-radius:3px;background:var(--surface-2);border:1px solid var(--border);box-sizing:border-box;display:flex;align-items:flex-end;padding:8px;font-size:10px;line-height:1.35;color:var(--muted);overflow:hidden">{{ c.posterText }}</div>
+                </sc-if>
+                <sc-if value="{{ c.noPoster }}" hint-placeholder-val="{{ false }}">
+                  <div style="aspect-ratio:{{ c.ratio }};width:100%;border-radius:3px;border:1px dashed var(--border);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted)">No artwork</div>
+                </sc-if>
+                <div style="display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 2px 2px">
+                  <span style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.title }}</span>
+                  <span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.sub }}</span>
+                  <sc-if value="{{ c.review }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--warning);padding-top:3px">Needs review</span></sc-if>
+                  <sc-if value="{{ c.unmatched }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--error);padding-top:3px">Unmatched</span></sc-if>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ lib.empty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:40px 0;display:flex;justify-content:center">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.EmptyState" icon="Layers" title="{{ lib.emptyTitle }}" hint-size="320px,110px">{{ lib.emptyText }}</x-import>
+            </div>
+          </sc-if>
+          </sc-if>
+          <sc-if value="{{ lib.isSeasons }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:16px 14px;align-items:start">
+              <sc-for list="{{ lib.seasons }}" as="s" hint-placeholder-count="2">
+                <button type="button" onClick="{{ s.onClick }}" style="display:flex;flex-direction:column;gap:7px;padding:6px;border-radius:4px;border:1px solid transparent;background:transparent;font-family:inherit;text-align:left;cursor:pointer;color:var(--text);min-width:0" style-hover="border-color:var(--muted)">
+                  <div style="aspect-ratio:2 / 3;width:100%;border-radius:3px;background:var(--surface-2);border:1px solid var(--border);box-sizing:border-box;display:flex;align-items:flex-end;padding:8px;font-size:10px;line-height:1.35;color:var(--muted)">{{ s.posterText }}</div>
+                  <div style="display:flex;flex-direction:column;gap:2px;padding:0 2px 2px">
+                    <span style="font-size:12px;font-weight:500">{{ s.name }}</span>
+                    <span style="font-size:11px;color:var(--muted)">{{ s.sub }}</span>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ lib.isEps }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid var(--border);border-radius:4px;overflow:auto">
+              <div style="min-width:640px">
+                <div style="display:flex;align-items:center;gap:12px;height:28px;padding:0 10px;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)">
+                  <div style="width:34px">Ep</div>
+                  <div style="flex:1;min-width:160px">Title</div>
+                  <div style="width:56px;text-align:right">Runtime</div>
+                  <div style="width:64px;text-align:right">Size</div>
+                  <div style="width:128px">Status</div>
+                  <div style="width:110px">Subtitles</div>
+                  <div style="width:70px"></div>
+                </div>
+                <sc-for list="{{ lib.eps }}" as="e" hint-placeholder-count="6">
+                  <div onClick="{{ e.onClick }}" onDoubleClick="{{ e.onPlay }}" style="display:flex;align-items:center;gap:12px;height:34px;padding:0 10px;border-bottom:1px solid var(--border);cursor:default;user-select:none;background:{{ e.bg }}" style-hover="background:var(--surface-2)">
+                    <div style="width:34px;font-family:var(--font-mono);font-size:11px;color:var(--muted)">{{ e.code }}</div>
+                    <div style="flex:1;min-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:{{ e.color }}">{{ e.title }}</div>
+                    <div style="width:56px;text-align:right;color:var(--muted);font-size:11px">{{ e.runtime }}</div>
+                    <div style="width:64px;text-align:right;color:var(--muted);font-size:11px">{{ e.size }}</div>
+                    <div style="width:128px;display:flex;align-items:center;gap:6px;font-size:11px;white-space:nowrap;overflow:hidden">
+                      <sc-if value="{{ e.stDot }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="{{ e.stDot }}" hint-size="5px,5px"></x-import><span>{{ e.stLabel }}</span></sc-if>
+                      <sc-if value="{{ e.stMuted }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted)">{{ e.stLabel }}</span></sc-if>
+                    </div>
+                    <div style="width:110px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.subs }}</div>
+                    <div style="width:70px;display:flex;justify-content:flex-end">
+                      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" size="xs" icon="Play" iconSize="{{ 12 }}" disabled="{{ e.cantPlay }}" onClick="{{ e.onPlayBtn }}" hint-size="auto,23px">Play</x-import>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding-top:10px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">{{ lib.epsHint }}</x-import></div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isServers }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Servers" style="flex:1;min-height:0;overflow:auto">
+        <div style="max-width:640px;padding:20px 24px 28px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="color:var(--accent);display:flex"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="Monitor" size="{{ 18 }}" hint-size="18px,18px"></x-import></span>
+            <span style="font-size:17px;font-weight:600">{{ srv.name }}</span>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Badge" tone="accent" hint-size="auto,18px">{{ srv.kind }}</x-import>
+            <span style="display:flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;color:var(--muted)"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="{{ srv.dot }}" hint-size="5px,5px"></x-import>{{ srv.status }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Library folder</x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Library root on this server" hint-size="100%,52px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" value="{{ srv.root }}" onChange="{{ srv.onRoot }}" hint-size="100%,29px"></x-import>
+            </x-import>
+            <div style="border:1px solid var(--border);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:6px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Folder mapping</x-import>
+              <div style="display:grid;grid-template-columns:70px minmax(0,1fr);gap:5px 10px;font-size:11px;align-items:baseline">
+                <span style="color:var(--muted)">Seedbox</span><span style="font-family:var(--font-mono);word-break:break-all">{{ srv.mapFrom }}</span>
+                <span style="color:var(--muted)">This server</span><span style="font-family:var(--font-mono);word-break:break-all;color:var(--accent)">{{ srv.mapTo }}</span>
+              </div>
+            </div>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">The seedbox owns the folder structure. Everything under the media root is recreated here with the same folder and file names. Files outside the media root are ignored.</x-import>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Storage</x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Progress" bare="{{ true }}" max="{{ 100 }}" value="{{ srv.diskPct }}" hint-size="100%,6px"></x-import>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)"><span>{{ srv.diskLabel }}</span><span>{{ srv.contents }}</span></div>
+          </div>
+          <sc-if value="{{ srv.agent }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Agent</x-import>
+              <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:7px 10px;font-size:12px">
+                <span style="color:var(--muted)">Address</span><span style="font-family:var(--font-mono);font-size:11px">{{ srv.addr }}</span>
+                <span style="color:var(--muted)">Version</span><span>{{ srv.version }}</span>
+                <span style="color:var(--muted)">Last seen</span><span>{{ srv.seen }}</span>
+              </div>
+              <sc-if value="{{ srv.offline }}" hint-placeholder-val="{{ false }}">
+                <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">Offline. Transfers queued for this server wait until the agent reconnects. Check that the PC is on and the Seedbox Sync Agent service is running.</x-import>
+              </sc-if>
+              <div style="display:flex;gap:6px">
+                <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="danger" icon="Trash2" onClick="{{ removeServer }}" hint-size="auto,29px">Remove server</x-import>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ srv.local }}" hint-placeholder-val="{{ true }}">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">This PC runs the Seedbox Sync service. It cannot be removed.</x-import>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Settings" ref="{{ scrollRef }}" style="flex:1;min-height:0;overflow:auto;position:relative">
+        <div style="max-width:560px;padding:20px 24px 40px;display:flex;flex-direction:column;gap:28px">
+          <div ref="{{ secConn }}" style="display:flex;flex-direction:column;gap:12px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Seedbox connection</x-import>
+            <div style="display:grid;grid-template-columns:110px minmax(0,1fr) 80px;gap:10px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Protocol" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Select" value="{{ draft.protocol }}" options="{{ protocols }}" onChange="{{ on.protocol }}" hint-size="100%,29px"></x-import></x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Host" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" value="{{ draft.host }}" onChange="{{ on.host }}" placeholder="seedbox.example.net" invalid="{{ set.hostInvalid }}" hint-size="100%,29px"></x-import></x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Port" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" value="{{ draft.port }}" onChange="{{ on.port }}" hint-size="100%,29px"></x-import></x-import>
+            </div>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.FieldPair" hint-size="100%,52px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Username" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" value="{{ draft.user }}" onChange="{{ on.user }}" hint-size="100%,29px"></x-import></x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Password" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" type="password" value="{{ draft.pass }}" onChange="{{ on.pass }}" hint-size="100%,29px"></x-import></x-import>
+            </x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Media root folder" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" value="{{ draft.root }}" onChange="{{ on.root }}" placeholder="/home/user/media" hint-size="100%,29px"></x-import></x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">Every media server mirrors the folders under this path. Changing it later remaps the whole library; existing local files are not moved or deleted.</x-import>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" icon="Plug" onClick="{{ testConn }}" disabled="{{ set.testing }}" hint-size="auto,29px">Test connection</x-import>
+              <sc-if value="{{ set.testOk }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.InlineStatus" hint-size="auto,22px">{{ set.testText }}</x-import></sc-if>
+              <sc-if value="{{ set.testMuted }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:var(--muted)">{{ set.testText }}</span></sc-if>
+              <sc-if value="{{ set.testFail }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;line-height:1.5;color:var(--error)">{{ set.testText }}</span></sc-if>
+            </div>
+          </div>
+          <div ref="{{ secXfer }}" style="display:flex;flex-direction:column;gap:12px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Transfers</x-import>
+            <div style="width:160px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Parallel transfers" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Select" value="{{ draft.parallel }}" options="{{ parallelOpts }}" onChange="{{ on.parallel }}" hint-size="100%,29px"></x-import></x-import></div>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">Files downloaded at the same time, across all media servers. Higher values help with many small files; most seedboxes cap total bandwidth either way.</x-import>
+          </div>
+          <div ref="{{ secMeta }}" style="display:flex;flex-direction:column;gap:12px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Metadata providers</x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.FieldPair" hint-size="100%,52px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="TMDB API key" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" type="password" value="{{ draft.tmdb }}" onChange="{{ on.tmdb }}" placeholder="Movies" hint-size="100%,29px"></x-import></x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="TVDB API key" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" type="password" value="{{ draft.tvdb }}" onChange="{{ on.tvdb }}" placeholder="Series" hint-size="100%,29px"></x-import></x-import>
+            </x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.FieldPair" hint-size="100%,52px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="OpenSubtitles username" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" value="{{ draft.osUser }}" onChange="{{ on.osUser }}" hint-size="100%,29px"></x-import></x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="OpenSubtitles password" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" type="password" value="{{ draft.osPass }}" onChange="{{ on.osPass }}" hint-size="100%,29px"></x-import></x-import>
+            </x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Subtitle languages" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" value="{{ draft.langs }}" onChange="{{ on.langs }}" placeholder="en, no" hint-size="100%,29px"></x-import></x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Checkbox" label="Write .nfo files and artwork next to media files" checked="{{ draft.sidecar }}" onChange="{{ on.sidecar }}" hint-size="100%,20px"></x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">Media files keep their seedbox names and paths. Metadata is stored as sidecar files, so the folder structure stays identical on every server. Audiobooks use embedded tags.</x-import>
+          </div>
+          <div ref="{{ secSvc }}" style="display:flex;flex-direction:column;gap:12px">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Service</x-import>
+            <div style="display:grid;grid-template-columns:130px minmax(0,1fr);gap:8px 10px;font-size:12px;align-items:center">
+              <span style="color:var(--muted)">Status</span><span style="display:flex;align-items:center;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="ready" hint-size="5px,5px"></x-import>Running as a Windows service</span>
+              <span style="color:var(--muted)">Web interface</span><span style="font-family:var(--font-mono);font-size:11px">http://127.0.0.1:8742</span>
+              <span style="color:var(--muted)">Service name</span><span style="font-family:var(--font-mono);font-size:11px">SeedboxSync</span>
+            </div>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">The web interface only listens on this PC. Transfers continue when this page is closed.</x-import>
+            <div style="display:flex;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" icon="RotateCw" onClick="{{ restartService }}" hint-size="auto,29px">Restart service</x-import></div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <div style="flex:none;border-top:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column">
+      <div style="height:33px;display:flex;align-items:center;gap:8px;padding:0 6px 0 4px">
+        <button type="button" onClick="{{ togglePanel }}" style="display:flex;align-items:center;gap:6px;height:27px;padding:0 8px;border:0;border-radius:3px;background:transparent;color:var(--text);font-family:inherit;font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;cursor:pointer" style-hover="background:var(--surface-3)">
+          <span style="display:flex;color:var(--muted)"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="{{ xf.chevron }}" size="{{ 13 }}" hint-size="13px,13px"></x-import></span>Transfers
+        </button>
+        <sc-if value="{{ xf.hasActive }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Badge" tone="accent" hint-size="auto,18px">{{ xf.activeLabel }}</x-import></sc-if>
+        <sc-if value="{{ xf.hasQueued }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Badge" hint-size="auto,18px">{{ xf.queuedLabel }}</x-import></sc-if>
+        <span style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ xf.summary }}</span>
+        <span style="flex:1"></span>
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" size="xs" icon="{{ pauseIcon }}" iconSize="{{ 13 }}" onClick="{{ togglePause }}" title="{{ pauseLabel }}" hint-size="auto,23px">{{ pauseShort }}</x-import>
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" size="xs" icon="Eraser" iconSize="{{ 13 }}" disabled="{{ xf.noDone }}" onClick="{{ clearDone }}" title="Clear completed" hint-size="auto,23px">Clear</x-import>
+      </div>
+      <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="height:170px;overflow:auto;border-top:1px solid var(--border)">
+          <sc-for list="{{ xf.rows }}" as="t" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px;height:30px;padding:0 8px 0 12px;border-bottom:1px solid var(--border);font-size:11px">
+              <span style="display:flex;color:{{ t.iconColor }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="{{ t.icon }}" size="{{ 13 }}" hint-size="13px,13px"></x-import></span>
+              <span style="flex:1;min-width:0;display:flex;gap:8px;align-items:baseline;overflow:hidden">
+                <span style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.name }}</span>
+                <span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</span>
+              </span>
+              <span style="width:104px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.server }}</span>
+              <span style="width:150px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Progress" bare="{{ true }}" max="{{ 100 }}" value="{{ t.pct }}" hint-size="100%,6px"></x-import></span>
+              <span style="width:150px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums">{{ t.status }}</span>
+              <span style="width:27px;display:flex">
+                <sc-if value="{{ t.cancellable }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.IconButton" icon="X" label="Cancel transfer" size="sm" variant="ghost" iconSize="{{ 13 }}" onClick="{{ t.onCancel }}" hint-size="27px,27px"></x-import></sc-if>
+              </span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ xf.empty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:22px 16px;color:var(--muted);font-size:11px;text-align:center">No transfers. Select files or folders on the seedbox, then choose Download.</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </main>
+  <sc-if value="{{ hasDock }}" hint-placeholder-val="{{ true }}">
+    <aside style="width:{{ dockW }};flex:none;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border);min-height:0">
+      <div style="height:38px;flex:none;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--border)">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SectionHeading" flush="{{ true }}" hint-size="100%,14px">Properties</x-import>
+      </div>
+      <sc-if value="{{ isSeedbox }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;overflow:auto;padding:14px 12px;display:flex;flex-direction:column;gap:16px">
+          <sc-if value="{{ dock.show }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <span style="color:var(--accent);display:flex;padding-top:1px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="{{ dock.icon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import></span>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+                <strong style="font-size:13px;font-weight:600;word-break:break-word;line-height:1.35">{{ dock.name }}</strong>
+                <span style="color:var(--muted);font-size:11px">{{ dock.sub }}</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ dock.fields }}" as="f" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:3px">
+                  <span style="color:var(--muted);font-size:11px">{{ f.label }}</span>
+                  <span style="font-family:{{ f.font }};font-size:{{ f.fs }};word-break:break-all;line-height:1.45">{{ f.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Media servers</x-import>
+              <sc-for list="{{ dock.servers }}" as="s" hint-placeholder-count="1">
+                <div style="border:1px solid var(--border);border-radius:4px;padding:9px 10px;display:flex;flex-direction:column;gap:5px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-weight:600;flex:1">{{ s.name }}</span>
+                    <sc-if value="{{ s.dot }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="{{ s.dot }}" hint-size="5px,5px"></x-import><span style="font-size:11px">{{ s.label }}</span></sc-if>
+                    <sc-if value="{{ s.muted }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:var(--muted)">{{ s.label }}</span></sc-if>
+                  </div>
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);word-break:break-all;line-height:1.45">{{ s.path }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Download" wide="{{ true }}" disabled="{{ dock.cantDownload }}" onClick="{{ download }}" hint-size="100%,29px">{{ cmd.downloadLabel }}</x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="danger" icon="Trash2" wide="{{ true }}" disabled="{{ dock.cantDelete }}" onClick="{{ askDelete }}" hint-size="100%,29px">Delete from seedbox</x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">{{ dock.hint }}</x-import>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;overflow:auto;padding:14px 12px;display:flex;flex-direction:column;gap:16px">
+          <sc-if value="{{ ld.none }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SummaryCard" title="{{ ld.sumTitle }}" lines="{{ ld.sumLines }}" hint-size="100%,80px"></x-import>
+            <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">Select a title to see its match, artwork and subtitles.</x-import>
+          </sc-if>
+          <sc-if value="{{ ld.isEp }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">{{ ld.epCode }}</span>
+              <strong style="font-size:13px;font-weight:600;line-height:1.35">{{ ld.epTitle }}</strong>
+              <span style="color:var(--muted);font-size:11px">{{ ld.epSub }}</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Play" size="sm" disabled="{{ ld.epCantPlay }}" onClick="{{ playSel }}" hint-size="auto,25px">Play</x-import>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="ExternalLink" size="sm" disabled="{{ ld.epCantPlay }}" onClick="{{ openExternal }}" hint-size="auto,25px">Open in default player</x-import>
+            </div>
+            <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:6px 10px;font-size:11px">
+              <sc-for list="{{ ld.epFields }}" as="m" hint-placeholder-count="4"><span style="color:var(--muted)">{{ m.k }}</span><span style="word-break:break-word">{{ m.v }}</span></sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Location</x-import>
+              <span style="font-family:var(--font-mono);font-size:10px;word-break:break-all;line-height:1.5">{{ ld.epPath }}</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ ld.show }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:64px;flex:none;aspect-ratio:{{ ld.ratio }};border-radius:3px;background:var(--surface-2);border:1px solid var(--border);box-sizing:border-box"></div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+                <strong style="font-size:13px;font-weight:600;line-height:1.35;word-break:break-word">{{ ld.title }}</strong>
+                <span style="color:var(--muted);font-size:11px">{{ ld.sub }}</span>
+                <span style="color:var(--muted);font-size:11px">{{ ld.size }}</span>
+              </div>
+            </div>
+            <sc-if value="{{ ld.canPlay }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px">
+                <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Play" size="sm" onClick="{{ playSel }}" hint-size="auto,25px">Play</x-import>
+                <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="ExternalLink" size="sm" onClick="{{ openExternal }}" hint-size="auto,25px">Open in default player</x-import>
+              </div>
+            </sc-if>
+            <sc-if value="{{ ld.isShow }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" icon="ListTree" size="sm" onClick="{{ ld.openShow }}" hint-size="auto,25px">{{ ld.openShowLabel }}</x-import></div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Match</x-import>
+              <sc-if value="{{ ld.matched }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.InlineStatus" hint-size="100%,22px">{{ ld.matchHead }}</x-import></sc-if>
+              <sc-if value="{{ ld.review }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:600;color:var(--warning)">{{ ld.matchHead }}</span></sc-if>
+              <sc-if value="{{ ld.unmatched }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:600;color:var(--error)">{{ ld.matchHead }}</span></sc-if>
+              <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:5px 10px;font-size:11px">
+                <sc-for list="{{ ld.matchRows }}" as="m" hint-placeholder-count="3"><span style="color:var(--muted)">{{ m.k }}</span><span style="word-break:break-word">{{ m.v }}</span></sc-for>
+              </div>
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">{{ ld.matchHint }}</x-import>
+              <sc-if value="{{ ld.canFix }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="{{ ld.fixVariant }}" icon="Search" size="sm" onClick="{{ openFix }}" hint-size="auto,25px">{{ ld.fixLabel }}</x-import></div></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Artwork</x-import>
+              <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:5px 10px;font-size:11px">
+                <sc-for list="{{ ld.art }}" as="m" hint-placeholder-count="2"><span style="color:var(--muted)">{{ m.k }}</span><span>{{ m.v }}</span></sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ ld.hasSubs }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Subtitles · OpenSubtitles</x-import>
+                <span style="font-size:11px">{{ ld.subs }}</span>
+                <div style="display:flex;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" icon="MessageSquare" size="sm" disabled="{{ ld.subsPending }}" onClick="{{ fetchSubs }}" hint-size="auto,25px">{{ ld.subsBtn }}</x-import></div>
+              </div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">Location</x-import>
+              <span style="font-family:var(--font-mono);font-size:10px;word-break:break-all;line-height:1.5">{{ ld.path }}</span>
+              <span style="font-size:11px;color:var(--muted);line-height:1.5">{{ ld.seedbox }}</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </aside>
+  </sc-if>
+</div>
+<x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusBar" hint-size="100%,25px">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusItem" hint-size="auto,25px"><span style="display:inline-flex;align-items:center;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="ready" hint-size="5px,5px"></x-import>Service running</span></x-import>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusItem" hint-size="auto,25px"><span style="display:inline-flex;align-items:center;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusDot" status="{{ sb.connDot }}" hint-size="5px,5px"></x-import>{{ sb.conn }}</span></x-import>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusItem" hint-size="auto,25px"><span style="display:inline-flex;align-items:center;gap:7px">{{ sb.cap }}<span style="display:inline-flex;width:60px;height:4px;border-radius:2px;overflow:hidden;background:var(--bg)"><span style="background:var(--accent);width:{{ cap.usedPct }}"></span></span></span></x-import>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusItem" grow="{{ true }}" hint-size="auto,25px"><span></span></x-import>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusItem" hint-size="auto,25px">{{ sb.xfer }}</x-import>
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.StatusItem" hint-size="auto,25px">{{ sb.servers }}</x-import>
+</x-import>
+<sc-if value="{{ m.del }}" hint-placeholder-val="{{ false }}">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Modal" eyebrow="Delete from seedbox" title="{{ del.title }}" width="460px" onClose="{{ closeModal }}" hint-size="460px,260px">
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.SummaryCard" title="{{ del.head }}" lines="{{ del.lines }}" hint-size="100%,70px"></x-import>
+    <sc-if value="{{ del.risky }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;line-height:1.65;color:var(--error)">{{ del.riskText }}</div></sc-if>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">Copies on media servers stay unchanged. Deleting from the seedbox cannot be undone.</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.ButtonRow" hint-size="100%,29px">
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" onClick="{{ closeModal }}" hint-size="auto,29px">Cancel</x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="danger" icon="Trash2" onClick="{{ confirmDelete }}" hint-size="auto,29px">{{ del.confirm }}</x-import>
+    </x-import>
+  </x-import>
+</sc-if>
+<sc-if value="{{ m.dl }}" hint-placeholder-val="{{ false }}">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Modal" eyebrow="Download" title="{{ dl.title }}" width="460px" onClose="{{ closeModal }}" hint-size="460px,260px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ dl.servers }}" as="s" hint-placeholder-count="2">
+        <div style="border:1px solid var(--border);border-radius:4px;padding:9px 10px;display:flex;flex-direction:column;gap:3px">
+          <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Checkbox" label="{{ s.name }}" checked="{{ s.checked }}" disabled="{{ s.disabled }}" onChange="{{ s.onToggle }}" hint-size="100%,20px"></x-import>
+          <span style="font-size:11px;color:var(--muted);padding-left:21px;line-height:1.5">{{ s.hint }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">Files already on a server are skipped. Folders are created to match the seedbox.</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.ButtonRow" hint-size="100%,29px">
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" onClick="{{ closeModal }}" hint-size="auto,29px">Cancel</x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Download" disabled="{{ dl.none }}" onClick="{{ confirmDownload }}" hint-size="auto,29px">{{ dl.confirm }}</x-import>
+    </x-import>
+  </x-import>
+</sc-if>
+<sc-if value="{{ m.fix }}" hint-placeholder-val="{{ false }}">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Modal" eyebrow="Fix match" title="{{ fix.title }}" width="620px" gap="{{ 14 }}" onClose="{{ closeModal }}" hint-size="620px,380px">
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div style="width:110px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Provider" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Select" value="{{ fix.provider }}" options="{{ fix.providers }}" onChange="{{ fix.onProvider }}" hint-size="100%,29px"></x-import></x-import></div>
+      <div style="flex:1"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Search title" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" value="{{ fix.q }}" onChange="{{ fix.onQ }}" onKeyDown="{{ fix.onKey }}" hint-size="100%,29px"></x-import></x-import></div>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" icon="Search" onClick="{{ fix.onSearch }}" hint-size="auto,29px">Search</x-import>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);word-break:break-all">{{ fix.folder }}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto">
+      <sc-for list="{{ fix.results }}" as="r" hint-placeholder-count="3">
+        <button type="button" onClick="{{ r.onPick }}" style="display:flex;gap:12px;align-items:center;padding:8px;border-radius:4px;border:1px solid {{ r.border }};background:{{ r.bg }};font-family:inherit;color:var(--text);text-align:left;cursor:pointer" style-hover="border-color:var(--muted)">
+          <span style="width:30px;height:45px;flex:none;border-radius:2px;background:var(--surface-3)"></span>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:12px;font-weight:600">{{ r.title }}</span>
+            <span style="font-size:11px;color:var(--muted)">{{ r.sub }}</span>
+          </span>
+          <span style="font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums">{{ r.score }}</span>
+        </button>
+      </sc-for>
+      <sc-if value="{{ fix.noResults }}" hint-placeholder-val="{{ false }}"><div style="padding:16px;text-align:center;font-size:11px;color:var(--muted)">No results. Try the original title or remove the year.</div></sc-if>
+    </div>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">Nothing changes until Apply. Artwork, .nfo and subtitles are refreshed for the new match; the media file is not renamed.</x-import>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.ButtonRow" hint-size="100%,29px">
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" onClick="{{ closeModal }}" hint-size="auto,29px">Cancel</x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Check" disabled="{{ fix.noPick }}" onClick="{{ applyFix }}" hint-size="auto,29px">Apply match</x-import>
+    </x-import>
+  </x-import>
+</sc-if>
+<sc-if value="{{ m.play }}" hint-placeholder-val="{{ false }}">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Modal" eyebrow="{{ pl.eyebrow }}" title="{{ pl.title }}" width="960px" gap="{{ 12 }}" onClose="{{ closePlay }}" hint-size="960px,640px">
+    <div onClick="{{ pl.toggle }}" style="aspect-ratio:16 / 9;width:100%;background:#000;border-radius:4px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer">
+      <span style="font-family:var(--font-mono);font-size:11px;color:#98a5b6;padding:0 24px;text-align:center;word-break:break-all">{{ pl.file }}</span>
+      <sc-if value="{{ pl.paused }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;width:64px;height:64px;border-radius:50%;background:#000a;border:1px solid #fff4;display:flex;align-items:center;justify-content:center;color:#fff"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="Play" size="{{ 26 }}" hint-size="26px,26px"></x-import></span>
+      </sc-if>
+      <sc-if value="{{ pl.hasSubs }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;top:12px;right:12px;font-size:10px;padding:2px 6px;border-radius:3px;background:#000a;color:#e1e7ef">{{ pl.subsTag }}</span>
+      </sc-if>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.IconButton" icon="{{ pl.icon }}" label="{{ pl.iconLabel }}" onClick="{{ pl.toggle }}" hint-size="29px,29px"></x-import>
+      <sc-if value="{{ pl.isEp }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.IconButton" icon="StepForward" label="Next episode" disabled="{{ pl.noNext }}" onClick="{{ pl.next }}" hint-size="29px,29px"></x-import></sc-if>
+      <span style="font-family:var(--font-mono);font-size:11px;font-variant-numeric:tabular-nums;width:52px;text-align:right">{{ pl.time }}</span>
+      <input type="range" min="0" max="{{ pl.dur }}" value="{{ pl.t }}" onChange="{{ pl.seek }}" aria-label="Seek" style="flex:1;min-width:0;accent-color:var(--accent)">
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);width:52px">{{ pl.durLabel }}</span>
+      <div style="width:140px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Select" value="{{ pl.subs }}" options="{{ pl.subOpts }}" onChange="{{ pl.onSubs }}" aria-label="Subtitles" hint-size="100%,29px"></x-import></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="flex:1"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,24px">{{ pl.hint }}</x-import></div>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="ghost" icon="ExternalLink" size="sm" onClick="{{ openExternal }}" hint-size="auto,25px">Open in default player</x-import>
+    </div>
+  </x-import>
+</sc-if>
+<sc-if value="{{ m.add }}" hint-placeholder-val="{{ false }}">
+  <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Modal" eyebrow="Add media server" title="{{ add.title }}" width="500px" onClose="{{ closeModal }}" hint-size="500px,360px">
+    <sc-if value="{{ add.pairing }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">1 · Install the agent on the other PC</x-import>
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">Run SeedboxSyncAgent.msi on the media PC. It installs as a Windows service and asks for a pairing code. The agent downloads directly from the seedbox; nothing passes through this PC.</x-import>
+        <div style="display:flex;gap:6px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" icon="Copy" size="sm" onClick="{{ copyLink }}" hint-size="auto,25px">Copy installer link</x-import></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Eyebrow" hint-size="100%,12px">2 · Enter this pairing code</x-import>
+        <div style="border:1px solid var(--border);border-radius:4px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bg)">
+          <span style="font-family:var(--font-mono);font-size:26px;letter-spacing:4px">{{ add.code }}</span>
+          <span style="font-size:11px;color:var(--muted)">Expires in 10 minutes</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)">
+        <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Icon" name="LoaderCircle" size="{{ 14 }}" hint-size="14px,14px"></x-import>Waiting for the agent...
+      </div>
+    </sc-if>
+    <sc-if value="{{ add.found }}" hint-placeholder-val="{{ false }}">
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.InlineStatus" hint-size="100%,22px">{{ add.foundText }}</x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Name" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" value="{{ add.name }}" onChange="{{ add.onName }}" hint-size="100%,29px"></x-import></x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Field" label="Library root on that PC" hint-size="100%,52px"><x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.TextInput" mono="{{ true }}" value="{{ add.root }}" onChange="{{ add.onRoot }}" hint-size="100%,29px"></x-import></x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Hint" hint-size="100%,40px">The seedbox folder structure is mirrored under this path. Nothing downloads until you choose Download for a file or folder.</x-import>
+    </sc-if>
+    <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.ButtonRow" hint-size="100%,29px">
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" onClick="{{ closeModal }}" hint-size="auto,29px">Cancel</x-import>
+      <x-import component-from-global-scope="WorkbenchDesignSystem_7eab5c.Button" variant="primary" icon="Plus" disabled="{{ add.notReady }}" onClick="{{ confirmAdd }}" hint-size="auto,29px">Add server</x-import>
+    </x-import>
+  </x-import>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;servers&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Local only (MVP)&quot;,&quot;Multiple servers&quot;],&quot;default&quot;:&quot;Local only (MVP)&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;firstRun&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const ROOT0 = '/home/rob/media', CAP = 1000, OTHER = 386.2;
+const SRV = [
+  { id: 'local', name: 'MEDIA-PC', kind: 'Local', desc: 'This PC', online: true, root: 'D:\\Media', addr: '127.0.0.1', version: 'Service 1.0.0', seen: 'Now', used: 2.16, total: 4 },
+  { id: 'living', name: 'LIVINGROOM-PC', kind: 'Agent', desc: 'Agent · 192.168.1.31', online: true, root: 'E:\\Library', addr: '192.168.1.31', version: 'Agent 1.0.2', seen: 'Now', used: 1.12, total: 2 },
+  { id: 'study', name: 'STUDY-PC', kind: 'Agent', desc: 'Agent · 192.168.1.44', online: false, root: 'D:\\Plex', addr: '192.168.1.44', version: 'Agent 1.0.2', seen: '3 days ago', used: 0.61, total: 1 },
+];
+const MOVIES = [
+  ['Dune Part Two (2024)', 64.3, '2026-10-02', { local: 1, living: 1 }],
+  ['Oppenheimer (2023)', 38.1, '2026-09-28', { local: 1 }],
+  ['Civil War (2024)', 21.4, '2026-10-11', { local: 1, living: 1, study: 1 }],
+  ['The Holdovers (2023)', 14.2, '2026-10-19', {}],
+  ['Past Lives (2023)', 9.8, '2026-10-21', {}],
+  ['Perfect Days (2023)', 11.5, '2026-10-24', {}],
+  ['Anatomy of a Fall (2023)', 12.9, '2026-10-25', {}],
+  ['Furiosa (2024)', 47.6, '2026-10-25', {}],
+];
+const SHOWS = [
+  ['Shōgun (2024)', 'Season 01', 10, 5.2, '2026-10-14', { local: 6 }],
+  ['The Bear (2022)', 'Season 03', 10, 2.2, '2026-09-30', { local: 10, living: 10 }],
+  ['Slow Horses (2022)', 'Season 04', 6, 3.0, '2026-10-20', {}],
+  ['Severance (2022)', 'Season 02', 10, 4.1, '2026-10-23', { living: 3 }],
+];
+const BOOKS = [
+  ['Andy Weir - Project Hail Mary', 'Project Hail Mary.m4b', 0.9, '2026-09-12', { local: 1 }],
+  ['Gabrielle Zevin - Tomorrow, and Tomorrow, and Tomorrow', 'Tomorrow, and Tomorrow, and Tomorrow.m4b', 1.1, '2026-10-18', {}],
+  ['Cixin Liu - The Three-Body Problem', 'The Three-Body Problem.m4b', 0.7, '2026-10-05', { local: 1 }],
+];
+const LOCAL_ONLY = [
+  { name: 'Arrival (2016)', cat: 'movies', size: 31.2 },
+  { name: 'Blade Runner 2049 (2017)', cat: 'movies', size: 58.4 },
+  { name: 'aftersun.2022.1080p.BluRay', cat: 'movies', size: 8.7 },
+  { name: 'Succession (2018)', cat: 'tv', size: 96.0 },
+];
+const M = (p, id, t, y, by, m, c, sub) => ({ p, id, t, y, by, m, c, sub: sub || [], poster: m !== 'unmatched', backdrop: m !== 'unmatched' });
+const META0 = {
+  'Dune Part Two (2024)': M('TMDB', '693134', 'Dune: Part Two', 2024, 'Denis Villeneuve', 'matched', 98, ['English', 'Norwegian']),
+  'Oppenheimer (2023)': M('TMDB', '872585', 'Oppenheimer', 2023, 'Christopher Nolan', 'matched', 99, ['English']),
+  'Civil War (2024)': M('TMDB', '271110', 'Captain America: Civil War', 2016, 'Anthony Russo, Joe Russo', 'review', 71),
+  'The Holdovers (2023)': M('TMDB', '840430', 'The Holdovers', 2023, 'Alexander Payne', 'matched', 97),
+  'Past Lives (2023)': M('TMDB', '666277', 'Past Lives', 2023, 'Celine Song', 'matched', 98),
+  'Perfect Days (2023)': M('TMDB', '976893', 'Perfect Days', 2023, 'Wim Wenders', 'matched', 96),
+  'Anatomy of a Fall (2023)': M('TMDB', '915935', 'Anatomy of a Fall', 2023, 'Justine Triet', 'matched', 97),
+  'Furiosa (2024)': M('TMDB', '786892', 'Furiosa: A Mad Max Saga', 2024, 'George Miller', 'matched', 94),
+  'Shōgun (2024)': M('TVDB', '393554', 'Shōgun', 2024, 'FX', 'matched', 97, ['English']),
+  'The Bear (2022)': M('TVDB', '412453', 'The Bear', 2022, 'FX', 'matched', 99, ['English']),
+  'Slow Horses (2022)': M('TVDB', '397385', 'Slow Horses', 2022, 'Apple TV+', 'matched', 98),
+  'Severance (2022)': M('TVDB', '371980', 'Severance', 2022, 'Apple TV+', 'matched', 99),
+  'Andy Weir - Project Hail Mary': M('Tags', '', 'Project Hail Mary', 2021, 'Andy Weir', 'matched', 100),
+  'Gabrielle Zevin - Tomorrow, and Tomorrow, and Tomorrow': M('Tags', '', 'Tomorrow, and Tomorrow, and Tomorrow', 2022, 'Gabrielle Zevin', 'matched', 100),
+  'Cixin Liu - The Three-Body Problem': M('Tags', '', 'The Three-Body Problem', 2014, 'Cixin Liu', 'matched', 100),
+  'Arrival (2016)': M('TMDB', '329865', 'Arrival', 2016, 'Denis Villeneuve', 'matched', 99, ['English']),
+  'Blade Runner 2049 (2017)': M('TMDB', '335984', 'Blade Runner 2049', 2017, 'Denis Villeneuve', 'matched', 99, ['English', 'Norwegian']),
+  'aftersun.2022.1080p.BluRay': M('TMDB', '', '', null, '', 'unmatched', 0),
+  'Succession (2018)': M('TVDB', '338186', 'Succession', 2018, 'HBO', 'matched', 99, ['English']),
+};
+const CANDS = {
+  'civil war': [['Civil War', 2024, '929590', 'Alex Garland', 96], ['Captain America: Civil War', 2016, '271110', 'Anthony Russo, Joe Russo', 71], ['The Civil War', 1990, '73618', 'Ken Burns', 44]],
+  'aftersun': [['Aftersun', 2022, '965150', 'Charlotte Wells', 94], ['After the Sunset', 2004, '11826', 'Brett Ratner', 38]],
+};
+const CATDIR = { movies: 'Movies', tv: 'TV', books: 'Audiobooks' };
+const DEF = { protocol: 'SFTP', host: 'nl-ams-14.seedhost.example', port: '22', user: 'rob', pass: 'hunter2hunter2', root: ROOT0, parallel: '3', tmdb: '5f1c9a0e7b2d4c8e', tvdb: 'a91e44f0c2b7', osUser: 'rob.media', osPass: 'subtitles', langs: 'en, no', sidecar: true };
+const BLANK = { ...DEF, host: '', user: '', pass: '', root: '', tmdb: '', tvdb: '', osUser: '', osPass: '' };
+const PORTS = { FTP: '21', FTPS: '990', SFTP: '22' };
+const LANG = { en: 'English', no: 'Norwegian', sv: 'Swedish', da: 'Danish', de: 'German', fr: 'French', es: 'Spanish' };
+
+const EPT = {
+  'Shōgun (2024)': ['Anjin', 'Servants of Two Masters', 'Tomorrow Is Tomorrow', 'The Eightfold Fence', 'Broken to the Fist', 'Ladies of the Willow World', 'A Stick of Time', 'The Abyss of Life', 'Crimson Sky', 'A Dream of a Dream'],
+  'The Bear (2022)': ['Tomorrow', 'Next', 'Doors', 'Violet', 'Children', 'Napkins', 'Legacy', 'Ice Chips', 'Apologies', 'Forever'],
+  'Slow Horses (2022)': ['Identity Theft', 'Hello Goodbye', 'Negotiations', 'Uncivil Partnerships', 'Grave Danger', 'Hard Stop'],
+  'Severance (2022)': ['Hello, Ms. Cobel', 'Goodbye, Mrs. Selvig', 'Who Is Alive?', 'Woe\u2019s Hollow', 'Trojan\u2019s Horse', 'Attila', 'Chikhai Bardo', 'Sweet Vitriol', 'The After Hours', 'Cold Harbor'],
+};
+const EPMIN = { 'Shōgun (2024)': 58, 'The Bear (2022)': 32, 'Slow Horses (2022)': 47, 'Severance (2022)': 52, 'Succession (2018)': 62 };
+const RT = { 'Dune Part Two (2024)': 166, 'Oppenheimer (2023)': 180, 'Civil War (2024)': 109, 'The Holdovers (2023)': 133, 'Past Lives (2023)': 106, 'Perfect Days (2023)': 124, 'Anatomy of a Fall (2023)': 151, 'Furiosa (2024)': 148, 'Arrival (2016)': 116, 'Blade Runner 2049 (2017)': 164, 'aftersun.2022.1080p.BluRay': 102 };
+const fmt = gb => gb >= 1000 ? (gb / 1000).toFixed(2) + ' TB' : gb >= 1 ? gb.toFixed(1) + ' GB' : gb >= 0.001 ? Math.round(gb * 1024) + ' MB' : Math.max(1, Math.round(gb * 1048576)) + ' KB';
+const fdate = d => new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const pct = (a, b) => (b ? Math.max(0, Math.min(100, a / b * 100)) : 0).toFixed(2) + '%';
+const cleanName = n => n.replace(/\s*\(\d{4}\)\s*$/, '');
+const yearOf = n => (n.match(/(19|20)\d{2}/) || [''])[0];
+
+class Component extends DCLogic {
+  state = this.init();
+
+  init() {
+    this.nodes = {}; this.cat = {}; let i = 0;
+    const N = this.nodes;
+    const mk = (name, type, parent, extra) => { const id = 'n' + (i++); N[id] = { id, name, type, parent, children: [], size: 0, mod: '', st: {}, gone: false, ...extra }; if (parent) N[parent].children.push(id); return N[id]; };
+    const root = mk('media', 'folder', null, { cat: 'root' }); this.rootId = root.id;
+    Object.keys(CATDIR).forEach(k => { this.cat[k] = mk(CATDIR[k], 'folder', root.id, { cat: k }).id; });
+    const slug = s => s.replace(/ō/g, 'o').replace(/[():,']/g, '').trim().replace(/\s+/g, '.');
+    const st = o => { const r = {}; Object.keys(o).forEach(k => { if (o[k]) r[k] = 'synced'; }); return r; };
+    MOVIES.forEach(([name, size, mod, s]) => { const f = mk(name, 'folder', this.cat.movies, { title: 1 }); const b = slug(name); mk(b + '.2160p.WEB-DL.mkv', 'file', f.id, { size, mod, st: st(s) }); mk(b + '.en.srt', 'file', f.id, { size: 0.00009, mod, st: st(s) }); });
+    SHOWS.forEach(([name, season, eps, sz, mod, s]) => { const f = mk(name, 'folder', this.cat.tv, { title: 1 }); const se = mk(season, 'folder', f.id); const b = slug(cleanName(name)) + '.' + yearOf(name); const sn = season.slice(-2);
+      for (let e = 1; e <= eps; e++) { const ss = {}; Object.keys(s).forEach(k => { if (e <= s[k]) ss[k] = 'synced'; }); mk(b + '.S' + sn + 'E' + String(e).padStart(2, '0') + '.1080p.WEB.mkv', 'file', se.id, { size: +(sz * (0.92 + ((e * 37) % 17) / 100)).toFixed(2), mod, st: ss }); } });
+    BOOKS.forEach(([name, file, size, mod, s]) => { const f = mk(name, 'folder', this.cat.books, { title: 1 }); mk(file, 'file', f.id, { size, mod, st: st(s) }); mk('cover.jpg', 'file', f.id, { size: 0.0004, mod, st: st(s) }); });
+    const find = (pid, pred) => this.nodes[pid].children.map(c => this.nodes[c]).find(pred);
+    const pd = find(this.cat.movies, n => n.name.startsWith('Perfect'));
+    const sh = find(find(this.cat.tv, n => n.name.startsWith('Sh')).id, () => true);
+    const tr = []; let t = 0;
+    const add = (fid, status, p) => tr.push({ id: 't' + (t++), fileId: fid, server: 'local', status, pct: p || 0, speed: status === 'active' ? 34 : 0 });
+    add(pd.children[0], 'active', 42); add(pd.children[1], 'queued');
+    sh.children.slice(6).forEach((c, k) => add(c, k === 0 ? 'active' : 'queued', k === 0 ? 18 : 0));
+    this.tseq = t;
+    this.r = { scroll: React.createRef(), conn: React.createRef(), xfer: React.createRef(), meta: React.createRef(), svc: React.createRef() };
+    const fresh = !!this.props.firstRun;
+    return {
+      tab: 'seedbox', cwd: this.cat.movies, sel: [], filter: 'all', q: '', collapsed: {}, transfers: tr, paused: false, panelOpen: true,
+      msg: null, modal: null, theme: null, meta: JSON.parse(JSON.stringify(META0)), libType: 'all', libMatch: null, libSel: null, libServer: 'local',
+      subsPending: null, fix: null, srvSel: 'local', srvRoots: {}, srvDraft: {}, extra: [], removed: [], settings: fresh ? { ...BLANK } : { ...DEF }, draft: fresh ? { ...BLANK } : { ...DEF },
+      test: null, connected: !fresh, add: null, dl: null, setSec: 'conn', lastRefresh: '14:32',
+    };
+  }
+
+  componentDidMount() { this.timer = setInterval(() => this.tick(), 700); this.applyTheme(); this.playTimer = setInterval(() => { const P = this.state.play; if (this.state.modal === 'play' && P && P.playing) this.setState({ play: { ...P, t: Math.min(P.t + 1, 4 * 3600) } }); }, 1000); this.onResize = () => this.setState({ winW: window.innerWidth }); window.addEventListener('resize', this.onResize); this.onResize(); }
+  componentDidUpdate(pp) { this.applyTheme(); if (pp.firstRun !== this.props.firstRun) { const f = !!this.props.firstRun; this.setState({ connected: !f, settings: f ? { ...BLANK } : { ...DEF }, draft: f ? { ...BLANK } : { ...DEF }, test: null }); } }
+  componentWillUnmount() { window.removeEventListener('resize', this.onResize); clearInterval(this.playTimer); clearInterval(this.timer); clearTimeout(this.addTimer); clearTimeout(this.msgTimer); }
+  themeName() { return this.state.theme || this.props.theme || 'dark'; }
+  applyTheme() { document.documentElement.dataset.theme = this.themeName(); }
+
+  multi() { return this.props.servers === 'Multiple servers'; }
+  servers() {
+    const base = this.multi() ? SRV.concat(this.state.extra) : [SRV[0]];
+    return base.filter(s => !this.state.removed.includes(s.id)).map(s => ({ ...s, root: this.state.srvRoots[s.id] || s.root }));
+  }
+  root() { return this.state.settings.root || ROOT0; }
+  note(text, error) { this.setState({ msg: { text, error: !!error } }); }
+
+  files(id, incGone) { const n = this.nodes[id]; if (!n || (n.gone && !incGone)) return []; if (n.type === 'file') return [n]; return n.children.flatMap(c => this.files(c, incGone)); }
+  relParts(id) { const p = []; let n = this.nodes[id]; while (n && n.parent) { p.unshift(n.name); n = this.nodes[n.parent]; } return p; }
+  remotePath(id) { const p = this.relParts(id); return this.root() + (p.length ? '/' + p.join('/') : ''); }
+  localPath(id, srv) { const p = this.relParts(id); return srv.root + (p.length ? '\\' + p.join('\\') : ''); }
+  tmap() { const m = {}; this.state.transfers.forEach(t => { if (t.status !== 'done') m[t.fileId + '|' + t.server] = t; }); return m; }
+  syncOf(F, srv, tm) {
+    if (!F.length) return { label: 'Empty', muted: true };
+    let s = 0, sb = 0, tot = 0, act = 0, q = 0, prog = 0;
+    F.forEach(f => { tot += f.size; if (f.st[srv.id] === 'synced') { s++; sb += f.size; } else { const t = tm[f.id + '|' + srv.id]; if (t) { if (t.status === 'active') { act++; prog += f.size * t.pct / 100; } else q++; } } });
+    if (act) return { key: 'dl', label: (this.state.paused ? 'Paused ' : 'Downloading ') + Math.floor((sb + prog) / tot * 100) + '%', dot: 'live' };
+    if (q) return { key: 'q', label: srv.online ? 'Queued' : 'Queued · offline', dot: 'live' };
+    if (s === F.length) return { key: 'synced', label: 'Synced', dot: 'ready' };
+    if (s > 0) return { key: 'partial', label: s + ' of ' + F.length + ' files', dot: 'pending' };
+    if (!srv.online) return { key: 'off', label: 'Offline', muted: true };
+    return { key: 'none', label: 'Not synced', muted: true };
+  }
+  folderMod(id) { const F = this.files(id); return F.reduce((a, f) => f.mod > a ? f.mod : a, ''); }
+  targets() { const s = this.state.sel.filter(id => this.nodes[id] && !this.nodes[id].gone); return s.length ? s : [this.state.cwd]; }
+  isStructural(id) { const n = this.nodes[id]; return !n || !!n.cat; }
+  pending(ids, srvId, tm) { return ids.flatMap(id => this.files(id)).filter(f => f.st[srvId] !== 'synced' && !tm[f.id + '|' + srvId]); }
+
+  tick() {
+    if (this.state.paused) return;
+    const par = +this.state.settings.parallel || 3, online = {};
+    this.servers().forEach(s => { online[s.id] = s.online; });
+    const ts = this.state.transfers.map(t => ({ ...t }));
+    let active = ts.filter(t => t.status === 'active').length, changed = false;
+    ts.forEach(t => { if (active < par && t.status === 'queued' && online[t.server]) { t.status = 'active'; active++; changed = true; } });
+    ts.forEach(t => {
+      if (t.status !== 'active') return;
+      const f = this.nodes[t.fileId]; if (!f || f.gone) { t.status = 'cancelled'; return; }
+      t.pct = Math.min(100, t.pct + Math.max(1.2, 26 / Math.sqrt(Math.max(f.size, 0.001) * 10)) * (0.7 + Math.random() * 0.6));
+      t.speed = Math.round(22 + Math.random() * 22); changed = true;
+      if (t.pct >= 100) { t.status = 'done'; t.doneAt = Date.now(); f.st[t.server] = 'synced'; }
+    });
+    if (changed) this.setState({ transfers: ts.filter(t => t.status !== 'cancelled') });
+  }
+
+  queue(ids, srvIds) {
+    const tm = this.tmap(), add = []; let bytes = 0;
+    srvIds.forEach(sid => this.pending(ids, sid, tm).forEach(f => { add.push({ id: 't' + (this.tseq++), fileId: f.id, server: sid, status: 'queued', pct: 0, speed: 0 }); bytes += f.size; }));
+    const names = this.servers().filter(s => srvIds.includes(s.id)).map(s => s.name).join(' and ');
+    this.setState({ transfers: this.state.transfers.concat(add), modal: null, panelOpen: true });
+    this.note(add.length ? 'Queued ' + add.length.toLocaleString() + (add.length === 1 ? ' file' : ' files') + ' for ' + names + '. ' + fmt(bytes) + ' to transfer.' : 'Nothing to download. Every file is already on ' + names + ' or queued.');
+  }
+
+  doDelete() {
+    const ids = this.targets().filter(id => !this.isStructural(id)), tm = this.tmap();
+    const F = ids.flatMap(id => this.files(id)); const size = F.reduce((a, f) => a + f.size, 0);
+    const only = F.filter(f => !Object.keys(f.st).length).length;
+    const mark = id => { const n = this.nodes[id]; n.gone = true; n.children.forEach(mark); };
+    ids.forEach(mark);
+    const gone = new Set(F.map(f => f.id));
+    let cwd = this.state.cwd; while (this.nodes[cwd].gone) cwd = this.nodes[cwd].parent;
+    const label = ids.length === 1 ? this.nodes[ids[0]].name : ids.length + ' items';
+    this.setState({ modal: null, sel: [], cwd, transfers: this.state.transfers.filter(t => t.status === 'done' || !gone.has(t.fileId)) });
+    this.note('Deleted ' + label + ' from the seedbox. ' + fmt(size) + ' freed.' + (only ? ' ' + only + (only === 1 ? ' file had' : ' files had') + ' no copy on a media server.' : ' Copies on media servers stay unchanged.'));
+  }
+
+  titles(srvId) {
+    const out = [], N = this.nodes;
+    Object.keys(CATDIR).forEach(cat => N[this.cat[cat]].children.forEach(cid => {
+      const F = this.files(cid, true), syn = F.filter(f => f.st[srvId] === 'synced');
+      if (!syn.length) return;
+      out.push({ id: cid, name: N[cid].name, cat, size: syn.reduce((a, f) => a + f.size, 0), onSeedbox: this.files(cid).length > 0, have: syn.length, total: F.length });
+    }));
+    if (srvId === 'local') LOCAL_ONLY.forEach((l, i) => out.push({ id: 'lo' + i, name: l.name, cat: l.cat, size: l.size, onSeedbox: false, have: 1, total: 1 }));
+    return out;
+  }
+  displayTitle(t) { return t.cat === 'books' ? (t.name.split(' - ')[1] || t.name) : cleanName(t.name); }
+  candidates(q, provider, meta) {
+    const key = Object.keys(CANDS).find(k => q.toLowerCase().includes(k));
+    if (key) return CANDS[key].filter(c => provider === 'TMDB' ? !(c[0] === 'The Civil War') : c[0] === 'The Civil War').map(c => ({ t: c[0], y: c[1], id: c[2], by: c[3], score: c[4], p: provider }));
+    if (!q.trim()) return [];
+    return [{ t: meta.t || q, y: meta.y || '', id: meta.id || '1' + (q.length * 7919 % 99999), by: meta.by || '', score: 97, p: provider }];
+  }
+
+  seasonsOf(t, srvId, tm) {
+    if (t.id.startsWith('lo')) return [10, 10, 9, 10].map((n, si) => ({ key: t.id + 's' + si, name: 'Season ' + String(si + 1).padStart(2, '0'), num: si + 1,
+      eps: Array.from({ length: n }, (_, e) => ({ id: t.id + 's' + si + 'e' + e, num: e + 1, title: 'Episode ' + (e + 1), size: 2.3 + ((e * 13) % 7) / 10, avail: true, onSeedbox: false, stLabel: 'Available', stDot: 'ready', file: 'Succession.2018.S0' + (si + 1) + 'E' + String(e + 1).padStart(2, '0') + '.1080p.mkv' })) }));
+    const N = this.nodes, names = EPT[t.name] || [];
+    return N[t.id].children.map(sid => { const s = N[sid]; return { key: sid, name: s.name, num: +s.name.replace(/\D/g, '') || 1,
+      eps: this.files(sid, true).map((f, i) => { const avail = f.st[srvId] === 'synced'; const st = avail ? null : this.syncOf([f], { id: srvId, online: true }, tm); const moving = st && (st.key === 'dl' || st.key === 'q');
+        return { id: f.id, num: i + 1, title: names[i] || 'Episode ' + (i + 1), size: f.size, avail, onSeedbox: !f.gone, file: f.name,
+          stLabel: avail ? 'Available' : moving ? st.label : f.gone ? 'Not on this server' : 'Seedbox only', stDot: avail ? 'ready' : moving ? 'live' : '' }; }) }; });
+  }
+  openShow(t) { this.setState({ libPath: { show: t.id, season: null }, libSel: t.id, epSel: null }); }
+  setTab = tab => this.setState({ tab, modal: null });
+  openFixFor(id) {
+    const ts = this.titles(this.state.libServer), t = ts.find(x => x.id === id); if (!t) return;
+    const meta = this.state.meta[t.name] || {};
+    const q = t.name.replace(/\./g, ' ').replace(/\(?(19|20)\d{2}\)?.*$/, '').trim();
+    const provider = t.cat === 'tv' ? 'TVDB' : 'TMDB';
+    this.setState({ modal: 'fix', fix: { id, name: t.name, q, provider, results: this.candidates(q, provider, meta), pick: null } });
+  }
+
+  renderVals() {
+    const S = this.state, N = this.nodes, servers = this.servers(), multi = this.multi(), connected = S.connected;
+    const local = servers[0], tm = this.tmap(), tab = S.tab;
+    const filesAll = this.files(this.rootId);
+    const media = filesAll.reduce((a, f) => a + f.size, 0);
+    const srvIds = new Set(servers.map(s => s.id));
+    const syncedAny = filesAll.filter(f => Object.keys(f.st).some(k => srvIds.has(k))).reduce((a, f) => a + f.size, 0);
+    const other = connected ? OTHER : 0, used = connected ? media + other : 0;
+    const cap = connected ? {
+      usedLabel: fmt(used) + ' of 1 TB', synced: fmt(syncedAny), remote: fmt(media - syncedAny), other: fmt(other), free: fmt(CAP - used),
+      syncedPct: pct(syncedAny, CAP), remotePct: pct(media - syncedAny, CAP), otherPct: pct(other, CAP), usedPct: pct(used, CAP),
+      warn: used > 900, warnText: 'Seedbox is over 90% full. Delete synced items to make room; new torrents may stall.',
+    } : { usedLabel: 'Not connected', synced: '–', remote: '–', other: '–', free: '–', syncedPct: '0%', remotePct: '0%', otherPct: '0%', usedPct: '0%', warn: false };
+
+    // tree
+    const q = S.q.trim().toLowerCase();
+    const inside = (id, anc) => { let n = N[id]; while (n) { if (n.id === anc) return true; n = N[n.parent]; } return false; };
+    const tree = !connected ? [] : Object.keys(CATDIR).map(k => {
+      const kids = N[this.cat[k]].children.map(c => N[c]).filter(n => !n.gone);
+      const items = kids.filter(n => !q || n.name.toLowerCase().includes(q)).map(n => ({ label: n.name, icon: 'Folder', selected: inside(S.cwd, n.id), onClick: () => this.setState({ cwd: n.id, sel: [] }) }));
+      const expanded = !S.collapsed[k] || !!q;
+      return { label: CATDIR[k], count: kids.length, expanded, items, onToggle: () => this.setState({ collapsed: { ...S.collapsed, [k]: !S.collapsed[k] }, cwd: this.cat[k], sel: [] }) };
+    });
+
+    // crumbs
+    const chain = []; let cn = N[S.cwd]; while (cn) { chain.unshift(cn); cn = N[cn.parent]; }
+    const crumbs = chain.map((n, i) => ({ name: i === 0 ? this.root() : n.name, notFirst: i > 0, color: i === chain.length - 1 ? 'var(--text)' : 'var(--muted)', onClick: () => this.setState({ cwd: n.id, sel: [] }) }));
+
+    // rows
+    const sel = new Set(S.sel);
+    const kids = connected ? N[S.cwd].children.map(c => N[c]).filter(n => !n.gone).sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name) : a.type === 'folder' ? -1 : 1)) : [];
+    const rowsAll = kids.map(n => {
+      const F = this.files(n.id), isFolder = n.type === 'folder';
+      const states = servers.map(s => this.syncOf(F, s, tm));
+      return { n, F, isFolder, states, localKey: states[0].key };
+    });
+    const rowsF = rowsAll.filter(r => S.filter === 'all' || (S.filter === 'synced' ? r.localKey === 'synced' : r.localKey !== 'synced'));
+    const clickRow = (id, e) => {
+      if (e.ctrlKey || e.metaKey) { const s = new Set(S.sel); s.has(id) ? s.delete(id) : s.add(id); this.setState({ sel: [...s] }); }
+      else if (e.shiftKey && S.sel.length) { const ids = rowsF.map(r => r.n.id); const a = ids.indexOf(S.sel[S.sel.length - 1]), b = ids.indexOf(id); const [x, y] = a < b ? [a, b] : [b, a]; this.setState({ sel: ids.slice(x, y + 1) }); }
+      else this.setState({ sel: [id] });
+    };
+    const rows = rowsF.map(r => ({
+      name: r.n.name, isFolder: r.isFolder, icon: r.isFolder ? 'Folder' : (/\.(mkv|mp4|m4b)$/.test(r.n.name) ? 'File' : 'FileText'),
+      iconColor: r.isFolder ? 'var(--accent)' : 'var(--muted)', count: r.isFolder ? r.F.length + (r.F.length === 1 ? ' file' : ' files') : '',
+      size: fmt(r.F.reduce((a, f) => a + f.size, 0)), mod: fdate(r.isFolder ? (this.folderMod(r.n.id) || '2026-10-01') : r.n.mod),
+      states: r.states.map(s => ({ label: s.label, dot: s.dot || '', muted: !!s.muted })),
+      sel: sel.has(r.n.id), bg: sel.has(r.n.id) ? 'var(--accent-soft)' : 'transparent',
+      onClick: e => clickRow(r.n.id, e), onOpen: () => { if (r.isFolder) this.setState({ cwd: r.n.id, sel: [] }); },
+      onCheck: c => { const s = new Set(S.sel); c ? s.add(r.n.id) : s.delete(r.n.id); this.setState({ sel: [...s] }); },
+    }));
+    const allSel = rowsF.length > 0 && rowsF.every(r => sel.has(r.n.id)), someSel = !allSel && rowsF.some(r => sel.has(r.n.id));
+
+    // command + dock
+    const tg = this.targets(), tgF = tg.flatMap(id => this.files(id));
+    const dlPending = servers.some(s => s.online || multi) && servers.some(s => this.pending(tg, s.id, tm).length);
+    const delOk = connected && tg.every(id => !this.isStructural(id));
+    const cmd = { cantDownload: !connected || !dlPending, cantDelete: !delOk, downloadLabel: multi ? 'Download...' : 'Download to ' + local.name };
+    let dock = { show: false };
+    if (connected) {
+      const one = tg.length === 1 ? N[tg[0]] : null;
+      const totalSize = tgF.reduce((a, f) => a + f.size, 0);
+      const latest = tgF.reduce((a, f) => f.mod > a ? f.mod : a, '');
+      const unsyncedAll = tgF.filter(f => !Object.keys(f.st).some(k => srvIds.has(k)));
+      const syncedLocal = tgF.filter(f => f.st[local.id] === 'synced').reduce((a, f) => a + f.size, 0);
+      let hint;
+      if (!delOk) hint = 'Category folders belong to the media root and cannot be deleted here. Select the items inside instead.';
+      else if (!tgF.length) hint = 'Empty folder.';
+      else if (!unsyncedAll.length) hint = 'Every file is on a media server. Deleting frees ' + fmt(totalSize) + ' on the seedbox; local copies stay.';
+      else if (unsyncedAll.length === tgF.length) hint = 'Seedbox only. Download before deleting, or the files are gone for good.';
+      else hint = unsyncedAll.length + ' of ' + tgF.length + ' files exist only on the seedbox.';
+      dock = {
+        show: true, icon: one ? (one.type === 'folder' ? 'FolderOpen' : 'File') : 'Copy',
+        name: one ? (one.parent ? one.name : this.root()) : tg.length + ' items selected',
+        sub: one ? (one.type === 'folder' ? 'Folder · ' + tgF.length.toLocaleString() + (tgF.length === 1 ? ' file' : ' files') : 'File') : tgF.length.toLocaleString() + ' files',
+        fields: [
+          ...(one ? [{ label: 'Seedbox path', value: this.remotePath(one.id), font: 'var(--font-mono)', fs: '11px' }] : []),
+          { label: 'Size', value: fmt(totalSize) + (syncedLocal && syncedLocal < totalSize ? ' · ' + fmt(syncedLocal) + ' on ' + local.name : ''), font: 'inherit', fs: '12px' },
+          { label: 'Modified', value: latest ? fdate(latest) : '–', font: 'inherit', fs: '12px' },
+        ],
+        servers: servers.map(s => { const st = this.syncOf(tgF, s, tm); return { name: s.name, label: st.label, dot: st.dot || '', muted: !!st.muted, path: one ? this.localPath(one.id, s) : s.root }; }),
+        cantDownload: cmd.cantDownload, cantDelete: cmd.cantDelete, hint,
+      };
+    }
+
+    // modals
+    let del = {}, dl = {};
+    if (S.modal === 'del') {
+      const ids = tg.filter(id => !this.isStructural(id)); const F = ids.flatMap(id => this.files(id));
+      const only = F.filter(f => !Object.keys(f.st).some(k => srvIds.has(k))); const inflight = F.filter(f => Object.keys(tm).some(k => k.startsWith(f.id + '|'))).length;
+      del = {
+        title: ids.length === 1 ? 'Delete ' + N[ids[0]].name + '?' : 'Delete ' + ids.length + ' items?',
+        head: fmt(F.reduce((a, f) => a + f.size, 0)) + ' freed on the seedbox',
+        lines: [F.length.toLocaleString() + (F.length === 1 ? ' file' : ' files') + ' · ' + this.remotePath(N[ids[0]].parent) + '/', ...servers.map(s => s.name + ': ' + this.syncOf(F, s, tm).label.toLowerCase())],
+        risky: only.length > 0 || inflight > 0,
+        riskText: [only.length ? only.length + (only.length === 1 ? ' file is' : ' files are') + ' not on any media server. Deleting removes the only copy.' : '', inflight ? inflight + ' active or queued ' + (inflight === 1 ? 'transfer is' : 'transfers are') + ' cancelled.' : ''].filter(Boolean).join(' '),
+        confirm: only.length ? 'Delete anyway' : 'Delete from seedbox',
+      };
+    }
+    if (S.modal === 'dl' && S.dl) {
+      const picks = S.dl.picks; let n = 0, bytes = 0;
+      const rowsS = servers.map(s => { const P = this.pending(tg, s.id, tm); const sz = P.reduce((a, f) => a + f.size, 0); if (picks[s.id] && P.length) { n += P.length; bytes += sz; }
+        return { name: s.name, checked: !!picks[s.id] && P.length > 0, disabled: !P.length, onToggle: c => this.setState({ dl: { picks: { ...picks, [s.id]: c } } }),
+          hint: !P.length ? 'Already on this server or queued.' : P.length.toLocaleString() + (P.length === 1 ? ' file · ' : ' files · ') + fmt(sz) + ' → ' + this.localPath(tg[0], s) + (s.online ? '' : '. Offline: starts when the agent reconnects.') }; });
+      dl = { title: tg.length === 1 ? 'Download ' + N[tg[0]].name : 'Download ' + tg.length + ' items', servers: rowsS, none: !n, confirm: n ? 'Queue ' + fmt(bytes) : 'Queue' };
+    }
+
+    // transfers
+    const srvName = id => (servers.find(s => s.id === id) || {}).name || id;
+    const visT = S.transfers.filter(t => srvIds.has(t.server));
+    const act = visT.filter(t => t.status === 'active'), qd = visT.filter(t => t.status === 'queued'), done = visT.filter(t => t.status === 'done').sort((a, b) => b.doneAt - a.doneAt);
+    const speed = S.paused ? 0 : act.reduce((a, t) => a + t.speed, 0);
+    const ord = act.concat(qd, done.slice(0, 8));
+    const xf = {
+      chevron: S.panelOpen ? 'ChevronDown' : 'ChevronRight', hasActive: act.length > 0, hasQueued: qd.length > 0,
+      activeLabel: act.length + ' active', queuedLabel: qd.length + ' queued', noDone: !done.length, empty: !ord.length,
+      summary: S.paused ? 'Paused' : act.length ? speed + ' MB/s · up to ' + S.settings.parallel + ' at a time' : done.length ? 'Idle' : '',
+      rows: ord.map(t => { const f = N[t.fileId]; const parent = N[f.parent]; const title = parent && parent.title === undefined && N[parent.parent] ? N[parent.parent].name + ' / ' + parent.name : parent ? parent.name : '';
+        const left = t.speed ? Math.max(1, Math.round(f.size * 1024 * (1 - t.pct / 100) / t.speed / 60)) : 0;
+        return { name: f.name, title, server: srvName(t.server), pct: t.status === 'queued' ? 0 : t.pct,
+          icon: t.status === 'done' ? 'CircleCheck' : t.status === 'active' ? 'Download' : 'Clock', iconColor: t.status === 'done' ? 'var(--status-ready)' : t.status === 'active' ? 'var(--accent)' : 'var(--muted)',
+          status: t.status === 'done' ? 'Completed · ' + fmt(f.size) : t.status === 'queued' ? 'Queued · ' + fmt(f.size) : S.paused ? 'Paused · ' + Math.floor(t.pct) + '%' : Math.floor(t.pct) + '% · ' + t.speed + ' MB/s · ' + (left > 59 ? Math.floor(left / 60) + ' h ' + (left % 60) + ' min' : left + ' min'),
+          cancellable: t.status !== 'done', onCancel: () => this.setState({ transfers: this.state.transfers.filter(x => x.id !== t.id) }) }; }),
+    };
+
+    // library
+    const libSrv = servers.find(s => s.id === S.libServer) || local;
+    const titles = connected ? this.titles(libSrv.id) : [];
+    const metaOf = t => S.meta[t.name] || M(t.cat === 'tv' ? 'TVDB' : 'TMDB', '', '', null, '', 'unmatched', 0);
+    const cnt = { all: titles.length, movies: 0, tv: 0, books: 0, matched: 0, review: 0, unmatched: 0 };
+    titles.forEach(t => { cnt[t.cat]++; cnt[metaOf(t).m]++; });
+    const libTypes = [['all', 'All titles', 'Layers'], ['movies', 'Movies', 'Folder'], ['tv', 'TV series', 'Folder'], ['books', 'Audiobooks', 'Folder']].map(([id, l, icon]) => ({ label: l + ' (' + cnt[id] + ')', icon, selected: S.libType === id && !S.libMatch, onClick: () => this.setState({ libType: id, libMatch: null, libPath: null, epSel: null }) }));
+    const libMatches = [['matched', 'Matched', 'CircleCheck'], ['review', 'Needs review', 'TriangleAlert'], ['unmatched', 'Unmatched', 'CircleX']].map(([id, l, icon]) => ({ label: l + ' (' + cnt[id] + ')', icon, error: id !== 'matched' && cnt[id] > 0, selected: S.libMatch === id, onClick: () => this.setState({ libMatch: S.libMatch === id ? null : id, libPath: null, epSel: null }) }));
+    const shown = titles.filter(t => (S.libType === 'all' || t.cat === S.libType) && (!S.libMatch || metaOf(t).m === S.libMatch)).sort((a, b) => this.displayTitle(a).localeCompare(this.displayTitle(b)));
+    const cards = shown.map(t => { const m = metaOf(t), on = S.libSel === t.id;
+      let tvSub = '';
+      if (t.cat === 'tv' && m.m !== 'unmatched') { const ss = this.seasonsOf(t, libSrv.id, tm), av = ss.reduce((a, s) => a + s.eps.filter(e => e.avail).length, 0); tvSub = ss.length + (ss.length === 1 ? ' season · ' : ' seasons · ') + av + ' episodes'; }
+      return { title: this.displayTitle(t), sub: tvSub || (m.m === 'unmatched' ? 'No match' : m.p === 'Tags' ? m.by : (m.y || yearOf(t.name)) + ' · ' + m.p + ' ' + m.id),
+        posterText: m.m === 'unmatched' ? '' : m.t, poster: m.poster, noPoster: !m.poster, ratio: t.cat === 'books' ? '1 / 1' : '2 / 3', review: m.m === 'review', unmatched: m.m === 'unmatched',
+        border: on ? 'var(--accent)' : 'transparent', bg: on ? 'var(--accent-soft)' : 'transparent', onClick: () => t.cat === 'tv' ? this.openShow(t) : this.setState({ libSel: on ? null : t.id }) }; });
+    const lib = { heading: shown.length + (shown.length === 1 ? ' title' : ' titles') + ' on ' + libSrv.name + ' · ' + fmt(shown.reduce((a, t) => a + t.size, 0)), root: libSrv.root, cards, empty: !shown.length,
+      emptyTitle: titles.length ? 'Nothing matches' : 'Your library starts here', emptyText: titles.length ? 'Choose another media type or match status.' : 'Download titles from the seedbox. They appear here once the first file arrives.' };
+    const selT = titles.find(t => t.id === S.libSel);
+    let ld = { none: !selT, show: !!selT, sumTitle: titles.length + ' titles on ' + libSrv.name, sumLines: [cnt.movies + ' movies · ' + cnt.tv + ' series · ' + cnt.books + ' audiobooks', cnt.review + ' need review · ' + cnt.unmatched + ' unmatched', fmt(titles.reduce((a, t) => a + t.size, 0)) + ' on disk'] };
+    if (selT) {
+      const m = metaOf(selT), isBook = selT.cat === 'books', langs = (S.settings.langs || '').split(',').map(s => s.trim()).filter(Boolean);
+      const p = libSrv.root + '\\' + CATDIR[selT.cat] + '\\' + selT.name;
+      ld = { ...ld, title: this.displayTitle(selT), sub: [isBook ? 'Audiobook' : selT.cat === 'tv' ? 'TV series' : 'Movie', m.y || yearOf(selT.name)].filter(Boolean).join(' · '),
+        size: fmt(selT.size) + (selT.have < selT.total ? ' · ' + selT.have + ' of ' + selT.total + ' files' : ''), ratio: isBook ? '1 / 1' : '2 / 3',
+        matched: m.m === 'matched', review: m.m === 'review', unmatched: m.m === 'unmatched',
+        matchHead: m.m === 'matched' ? (m.p === 'Tags' ? 'Read from embedded tags' : 'Matched · ' + m.c + '% confidence') : m.m === 'review' ? 'Needs review · ' + m.c + '% confidence' : 'No match found',
+        matchRows: m.m === 'unmatched' ? [{ k: 'Searched', v: m.p }, { k: 'Folder', v: selT.name }] : m.p === 'Tags' ? [{ k: 'Title', v: m.t }, { k: 'Author', v: m.by }] : [{ k: 'Matched as', v: m.t + ' (' + m.y + ')' }, { k: m.p + ' ID', v: m.id }, { k: selT.cat === 'tv' ? 'Network' : 'Director', v: m.by }],
+        matchHint: m.m === 'review' ? 'The folder says ' + yearOf(selT.name) + ' but the best result is from ' + m.y + '. Confirm or pick another result.' : m.m === 'unmatched' ? 'No ' + m.p + ' result for "' + selT.name + '". Search with the original title.' : m.p === 'Tags' ? 'No audiobook provider is configured. Edit tags in the file to change this.' : 'Wrong title? Search ' + m.p + ' and pick the right result.',
+        canFix: m.p !== 'Tags', fixLabel: m.m === 'matched' ? 'Fix match' : m.m === 'review' ? 'Review match' : 'Search manually', fixVariant: m.m === 'matched' ? 'default' : 'primary',
+        art: [{ k: 'Poster', v: m.poster ? 'poster.jpg · downloaded' : 'Missing' }, { k: isBook ? 'Cover' : 'Backdrop', v: isBook ? 'cover.jpg · from seedbox' : m.backdrop ? 'fanart.jpg · downloaded' : 'Missing' }, { k: 'Metadata', v: S.settings.sidecar ? (isBook ? 'Embedded tags' : (selT.cat === 'tv' ? 'tvshow.nfo' : 'movie.nfo')) : 'Not written' }],
+        hasSubs: !isBook, subs: m.sub.length ? m.sub.join(', ') : 'None yet · languages: ' + (langs.map(l => LANG[l] || l).join(', ') || 'none set'),
+        subsPending: S.subsPending === selT.id || m.m === 'unmatched', subsBtn: S.subsPending === selT.id ? 'Searching...' : m.sub.length ? 'Fetch again' : 'Fetch subtitles',
+        path: p, seedbox: selT.onSeedbox ? 'Also on the seedbox at ' + this.root() + '/' + CATDIR[selT.cat] + '/' + selT.name : 'Removed from the seedbox. This is the only copy.' };
+    }
+    const showT = S.libPath ? titles.find(x => x.id === S.libPath.show) : null;
+    const seasons = showT ? this.seasonsOf(showT, libSrv.id, tm) : [];
+    const season = showT && S.libPath.season ? seasons.find(s => s.key === S.libPath.season) : null;
+    const toTop = () => this.setState({ libPath: null, epSel: null });
+    const toShow = () => this.setState({ libPath: { show: showT.id, season: null }, epSel: null });
+    const epMin = showT ? (EPMIN[showT.name] || 45) : 45, showMeta = showT ? metaOf(showT) : null;
+    const sxe = (s, e) => 'S' + String(s.num).padStart(2, '0') + 'E' + String(e.num).padStart(2, '0');
+    const playEp = (s, e) => this.setState({ modal: 'play', play: { kind: 'ep', show: showT.id, season: s.key, ep: e.id, t: 0, playing: true, subs: 'Off' }, epSel: e.id });
+    const allAvail = season && season.eps.every(e => e.avail);
+    Object.assign(lib, {
+      top: !showT, drilled: !!showT, isSeasons: !!showT && !season, isEps: !!season, back: () => season ? toShow() : toTop(),
+      crumbs: showT ? [{ name: 'All titles', onClick: toTop }, { name: this.displayTitle(showT), onClick: toShow }].concat(season ? [{ name: 'Season ' + season.num, onClick: () => {} }] : []).map((c, i, a) => ({ ...c, notFirst: i > 0, color: i === a.length - 1 ? 'var(--text)' : 'var(--muted)' })) : [],
+      seasons: seasons.map(s => { const av = s.eps.filter(e => e.avail).length; return { name: 'Season ' + s.num, posterText: this.displayTitle(showT) + ' · Season ' + s.num, sub: av === s.eps.length ? s.eps.length + ' episodes' : av + ' of ' + s.eps.length + ' episodes here', onClick: () => this.setState({ libPath: { show: showT.id, season: s.key }, epSel: null }) }; }),
+      eps: season ? season.eps.map(e => { const on = S.epSel === e.id; return { code: 'E' + String(e.num).padStart(2, '0'), title: e.title, runtime: epMin + ' min', size: fmt(e.size), stLabel: e.stLabel, stDot: e.stDot, stMuted: !e.stDot,
+        subs: e.avail ? (showMeta.sub.length ? showMeta.sub.join(', ') : 'None') : '–', cantPlay: !e.avail, color: e.avail ? 'var(--text)' : 'var(--muted)', bg: on ? 'var(--accent-soft)' : 'transparent',
+        onClick: () => this.setState({ epSel: e.id }), onPlay: () => { if (e.avail) playEp(season, e); }, onPlayBtn: ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); playEp(season, e); } }; }) : [],
+      epsHint: allAvail ? 'Double-click an episode to play it in the browser.' : 'Episodes that are only on the seedbox cannot be played yet. Download them from the Seedbox tab; they become playable when the file arrives.',
+    });
+    if (selT) Object.assign(ld, { canPlay: selT.cat === 'movies', isShow: selT.cat === 'tv' && !showT, openShow: () => this.openShow(selT), openShowLabel: 'Seasons and episodes' });
+    const ep = season && season.eps.find(e => e.id === S.epSel);
+    if (ep) ld = { ...ld, none: false, show: false, isEp: true, epCode: sxe(season, ep), epTitle: ep.title, epSub: this.displayTitle(showT) + ' · Season ' + season.num + ' · ' + epMin + ' min', epCantPlay: !ep.avail,
+      epFields: [{ k: 'Status', v: ep.stLabel }, { k: 'Size', v: fmt(ep.size) }, { k: 'Subtitles', v: ep.avail ? (showMeta.sub.join(', ') || 'None') : '–' }, { k: 'Seedbox', v: ep.onSeedbox ? 'Also on the seedbox' : 'Removed from the seedbox' }],
+      epPath: libSrv.root + '\\TV\\' + showT.name + '\\' + season.name + '\\' + ep.file };
+    const playSel = () => { if (ep) { if (ep.avail) playEp(season, ep); return; } if (selT && selT.cat === 'movies') this.setState({ modal: 'play', play: { kind: 'movie', id: selT.id, t: 0, playing: true, subs: 'Off' } }); };
+    let pl = {};
+    if (S.modal === 'play' && S.play) {
+      const P = S.play; let title = '', file = '', dur = 0, subsList = [], nextFn = null;
+      const hms = s => Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      if (P.kind === 'movie') { const t = titles.find(x => x.id === P.id); if (t) { const mm = metaOf(t); title = this.displayTitle(t) + (mm.y ? ' (' + mm.y + ')' : ''); dur = (RT[t.name] || 110) * 60; subsList = mm.sub;
+        file = libSrv.root + '\\Movies\\' + t.name + '\\' + (t.id.startsWith('lo') ? t.name.replace(/[()]/g, '').replace(/\s+/g, '.') + '.mkv' : N[N[t.id].children[0]].name); } }
+      else { const t = titles.find(x => x.id === P.show); const s = t && this.seasonsOf(t, libSrv.id, tm).find(x => x.key === P.season); const idx = s ? s.eps.findIndex(e => e.id === P.ep) : -1;
+        if (idx >= 0) { const e = s.eps[idx]; title = this.displayTitle(t) + ' · ' + sxe(s, e) + ' · ' + e.title; dur = (EPMIN[t.name] || 45) * 60; subsList = metaOf(t).sub; file = libSrv.root + '\\TV\\' + t.name + '\\' + s.name + '\\' + e.file;
+          const nx = s.eps.slice(idx + 1).find(x => x.avail); if (nx) nextFn = () => this.setState({ play: { ...this.state.play, ep: nx.id, t: 0, playing: true }, epSel: nx.id }); } }
+      const tt = Math.min(P.t, dur);
+      pl = { eyebrow: 'Playing from ' + libSrv.name, title, file, dur, t: tt, time: hms(tt), durLabel: hms(dur), paused: !P.playing, icon: P.playing ? 'Pause' : 'Play', iconLabel: P.playing ? 'Pause' : 'Play',
+        toggle: () => this.setState({ play: { ...this.state.play, playing: !this.state.play.playing } }), seek: ev => this.setState({ play: { ...this.state.play, t: +ev.target.value } }),
+        isEp: P.kind === 'ep', noNext: !nextFn, next: nextFn || (() => {}), subs: P.subs, subOpts: ['Off'].concat(subsList), onSubs: ev => this.setState({ play: { ...this.state.play, subs: ev.target.value } }),
+        hasSubs: P.subs !== 'Off', subsTag: P.subs + ' subtitles',
+        hint: 'Streams from ' + libSrv.name + ' to this browser. If the browser cannot decode the file, open it in the default player on the PC.' };
+    }
+    const libCmd = { noPlay: ep ? !ep.avail : !(selT && selT.cat === 'movies'), noSel: !selT || metaOf(selT).p === 'Tags', noSubs: !selT || selT.cat === 'books' || metaOf(selT).m === 'unmatched' || S.subsPending === selT.id };
+
+    // fix modal
+    let fix = {};
+    if (S.modal === 'fix' && S.fix) {
+      const F = S.fix, meta = S.meta[F.name] || {};
+      fix = { title: F.name, folder: 'Folder: ' + F.name, q: F.q, provider: F.provider, providers: ['TMDB', 'TVDB'], noPick: F.pick == null, noResults: !F.results.length,
+        onQ: e => this.setState({ fix: { ...F, q: e.target.value } }), onProvider: e => this.setState({ fix: { ...F, provider: e.target.value, results: this.candidates(F.q, e.target.value, meta), pick: null } }),
+        onSearch: () => this.setState({ fix: { ...F, results: this.candidates(F.q, F.provider, meta), pick: null } }),
+        onKey: e => { if (e.key === 'Enter') this.setState({ fix: { ...F, results: this.candidates(F.q, F.provider, meta), pick: null } }); },
+        results: F.results.map((r, i) => ({ title: r.t + (r.y ? ' (' + r.y + ')' : ''), sub: r.p + ' ' + r.id + (r.by ? ' · ' + r.by : '') + (meta.id === r.id ? ' · current match' : ''), score: r.score + '%',
+          border: F.pick === i ? 'var(--accent)' : 'var(--border)', bg: F.pick === i ? 'var(--accent-soft)' : 'transparent', onPick: () => this.setState({ fix: { ...F, pick: i } }) })) };
+    }
+
+    // servers
+    const srvSel = servers.find(s => s.id === S.srvSel) || local;
+    const srvRootDraft = S.srvDraft[srvSel.id] != null ? S.srvDraft[srvSel.id] : srvSel.root;
+    const libCount = connected ? this.titles(srvSel.id) : [];
+    const sample = N[this.cat.movies].children.find(c => !N[c].gone) || this.cat.movies;
+    const srvList = servers.map(s => ({ name: s.name, desc: s.desc, dot: s.online ? 'ready' : 'error', status: s.online ? 'Online' : 'Offline', bg: s.id === srvSel.id ? 'var(--accent-soft)' : 'transparent', onClick: () => this.setState({ srvSel: s.id }) }));
+    const srv = { name: srvSel.name, kind: srvSel.kind === 'Local' ? 'This PC' : 'Agent', dot: srvSel.online ? 'ready' : 'error', status: srvSel.online ? 'Online' : 'Offline · last seen ' + srvSel.seen,
+      root: srvRootDraft, onRoot: e => this.setState({ srvDraft: { ...S.srvDraft, [srvSel.id]: e.target.value } }),
+      mapFrom: this.remotePath(sample), mapTo: this.localPath(sample, { root: srvRootDraft || '?' }),
+      diskPct: srvSel.used / srvSel.total * 100, diskLabel: srvSel.used.toFixed(2) + ' TB used of ' + srvSel.total.toFixed(2) + ' TB · ' + (srvSel.total - srvSel.used).toFixed(2) + ' TB free',
+      contents: libCount.length + ' titles · ' + fmt(libCount.reduce((a, t) => a + t.size, 0)), agent: srvSel.kind === 'Agent', local: srvSel.kind === 'Local', offline: !srvSel.online,
+      addr: srvSel.addr, version: srvSel.version, seen: srvSel.seen };
+    const srvCmd = { clean: srvRootDraft === srvSel.root || !srvRootDraft };
+
+    // settings
+    const d = S.draft, clean = JSON.stringify(d) === JSON.stringify(S.settings);
+    const setF = k => e => { const v = e && e.target ? e.target.value : e; const nd = { ...this.state.draft, [k]: v }; if (k === 'protocol' && PORTS[this.state.draft.protocol] === this.state.draft.port) nd.port = PORTS[v]; this.setState({ draft: nd, test: null }); };
+    const on = {}; Object.keys(DEF).forEach(k => { on[k] = setF(k); });
+    const t = S.test;
+    const set = { clean, hostInvalid: t === 'fail' && !d.host, testing: t === 'testing', testOk: t === 'ok', testFail: t === 'fail', testMuted: t === 'testing',
+      testText: t === 'testing' ? 'Connecting to ' + d.host + '...' : t === 'ok' ? 'Connected · ' + d.protocol + ' · 3 folders under ' + d.root : t === 'fail' ? (!d.host ? 'Enter a host first.' : !d.root ? 'Connected, but no media root is set.' : 'Login failed. Check the username and password.') : '' };
+    const secs = [['conn', 'Seedbox connection', 'Cloud'], ['xfer', 'Transfers', 'ArrowUpDown'], ['meta', 'Metadata providers', 'Tag'], ['svc', 'Service', 'Server']];
+    const setNav = secs.map(([id, label, icon]) => ({ label, icon, selected: S.setSec === id, onClick: () => { this.setState({ setSec: id }); const sc = this.r.scroll.current, el = this.r[id].current; if (sc && el) sc.scrollTop = el.offsetTop - 16; } }));
+
+    const add = S.add || {};
+    const msg = S.msg;
+    return {
+      hostLabel: connected ? S.settings.host : 'No seedbox configured', connected, notConnected: !connected, multi, mvp: !multi,
+      tab, isSeedbox: tab === 'seedbox', isLibrary: tab === 'library', isServers: tab === 'servers', isSettings: tab === 'settings', hasDock: (tab === 'seedbox' || tab === 'library') && (S.winW || 1400) >= 1100,
+      wide: (S.winW || 1400) >= 1280, sideW: '300px', dockW: (S.winW || 1400) >= 1280 ? '310px' : '270px',
+      tableMin: (420 + servers.length * 128) + 'px', pauseShort: S.paused ? 'Resume' : 'Pause',
+      tabs: [{ id: 'seedbox', label: 'Seedbox', icon: 'Cloud' }, { id: 'library', label: 'Library', icon: 'LayoutGrid' }, { id: 'servers', label: 'Servers', icon: 'Monitor' }, { id: 'settings', label: 'Settings', icon: 'Settings' }],
+      setTab: this.setTab, openSettings: () => this.setState({ tab: 'settings' }),
+      themeIcon: this.themeName() === 'dark' ? 'Sun' : 'Moon', themeLabel: 'Switch to ' + (this.themeName() === 'dark' ? 'light' : 'dark') + ' theme',
+      toggleTheme: () => this.setState({ theme: this.themeName() === 'dark' ? 'light' : 'dark' }),
+      hasMsg: !!msg, msgText: msg ? msg.text : '', msgTone: msg && msg.error ? 'error' : 'info', dismiss: () => this.setState({ msg: null }),
+      cap, q: S.q, setQ: v => this.setState({ q: v }), tree, crumbs, atRoot: S.cwd === this.rootId || !connected, goUp: () => { const p = N[S.cwd].parent; if (p) this.setState({ cwd: p, sel: [] }); },
+      filters: [['all', 'All', 'List'], ['remote', 'Not on ' + local.name, 'Cloud'], ['synced', 'Synced', 'CircleCheck']].map(([id, label, icon]) => ({ label, icon, active: S.filter === id, onClick: () => this.setState({ filter: id }) })),
+      servers: servers.map(s => ({ name: s.name })), rows, noRows: connected && !rows.length, noRowsText: rowsAll.length ? 'Nothing here matches the filter.' : 'This folder is empty.',
+      allSel, someSel, toggleAll: c => this.setState({ sel: c ? rowsF.map(r => r.n.id) : [] }), stop: e => e.stopPropagation(),
+      cmd, dock,
+      refresh: () => { const d = new Date(); this.setState({ lastRefresh: d.toTimeString().slice(0, 5) }); this.note('Seedbox listing refreshed. ' + filesAll.length.toLocaleString() + ' files under ' + this.root() + '.'); },
+      download: () => { if (multi) this.setState({ modal: 'dl', dl: { picks: { [local.id]: true } } }); else this.queue(tg, [local.id]); },
+      confirmDownload: () => this.queue(tg, Object.keys(S.dl.picks).filter(k => S.dl.picks[k])),
+      askDelete: () => this.setState({ modal: 'del' }), confirmDelete: () => this.doDelete(), closeModal: () => { clearTimeout(this.addTimer); this.setState({ modal: null }); },
+      m: { del: S.modal === 'del', dl: S.modal === 'dl', fix: S.modal === 'fix', add: S.modal === 'add', play: S.modal === 'play' && !!pl.title }, del, dl, fix,
+      pauseIcon: S.paused ? 'Play' : 'Pause', pauseLabel: S.paused ? 'Resume transfers' : 'Pause transfers', togglePause: () => this.setState({ paused: !S.paused }),
+      panelOpen: S.panelOpen, togglePanel: () => this.setState({ panelOpen: !S.panelOpen }), clearDone: () => this.setState({ transfers: S.transfers.filter(x => x.status !== 'done') }), xf,
+      libServer: libSrv.id, serverOptions: servers.map(s => ({ value: s.id, label: s.name })), setLibServer: e => this.setState({ libServer: e.target.value, libSel: null, libPath: null, epSel: null }),
+      playSel, openExternal: () => { if (this.state.play) this.setState({ play: { ...this.state.play, playing: false } }); this.note('Opened ' + (pl.title || ld.epTitle || ld.title) + ' in the default player on ' + libSrv.name + '.'); },
+      pl, closePlay: () => this.setState({ modal: null, play: null }),
+      libTypes, libMatches, lib, ld, libCmd,
+      scanLibrary: () => this.note('Scanned ' + libSrv.root + '. ' + titles.length + ' titles · ' + cnt.review + ' need review · ' + cnt.unmatched + ' unmatched.'),
+      openFix: () => S.libSel && this.openFixFor(S.libSel),
+      applyFix: () => { const F = S.fix, r = F.results[F.pick], old = S.meta[F.name] || {};
+        this.setState({ modal: null, meta: { ...S.meta, [F.name]: { ...old, p: r.p, id: r.id, t: r.t, y: r.y, by: r.by, m: 'matched', c: 100, poster: true, backdrop: true, sub: old.sub || [] } } });
+        this.note('Matched ' + F.name + ' to ' + r.t + ' (' + r.y + '), ' + r.p + ' ' + r.id + '. Artwork and .nfo refresh in the background.'); },
+      fetchSubs: () => { if (!selT) return; const id = selT.id, name = selT.name; this.setState({ subsPending: id });
+        setTimeout(() => { const langs = (this.state.settings.langs || 'en').split(',').map(s => s.trim()).filter(Boolean).map(l => LANG[l] || l); const mm = this.state.meta[name];
+          this.setState({ subsPending: null, meta: { ...this.state.meta, [name]: { ...mm, sub: langs } } });
+          this.note('Found ' + langs.length + (langs.length === 1 ? ' subtitle' : ' subtitles') + ' on OpenSubtitles for ' + this.displayTitle(selT) + '. Saved next to the video file.'); }, 1200); },
+      refreshMeta: () => selT && this.note('Refreshed metadata for ' + this.displayTitle(selT) + ' from ' + metaOf(selT).p + '. Poster and .nfo rewritten.'),
+      srvCount: servers.length, srvList, srv, srvCmd,
+      saveServer: () => { this.setState({ srvRoots: { ...S.srvRoots, [srvSel.id]: srvRootDraft }, srvDraft: { ...S.srvDraft, [srvSel.id]: null } }); this.note('Library root for ' + srvSel.name + ' set to ' + srvRootDraft + '. Existing files are not moved.'); },
+      removeServer: () => { this.setState({ removed: S.removed.concat(srvSel.id), srvSel: 'local', transfers: S.transfers.filter(x => x.server !== srvSel.id) }); this.note('Removed ' + srvSel.name + '. Files on that PC stay; it no longer receives transfers.'); },
+      openAdd: () => { this.setState({ modal: 'add', add: { step: 'pair', code: 'K7Q-4XM' } }); clearTimeout(this.addTimer); this.addTimer = setTimeout(() => this.setState({ add: { step: 'found', code: 'K7Q-4XM', name: 'OFFICE-PC', root: 'D:\\Media', addr: '192.168.1.52' } }), 3500); },
+      add: { title: add.step === 'found' ? 'Name the server' : 'Pair a media PC', pairing: add.step === 'pair', found: add.step === 'found', code: add.code, name: add.name, root: add.root, foundText: 'Agent found · ' + (add.name || '') + ' at ' + (add.addr || ''),
+        notReady: add.step !== 'found' || !add.name || !add.root, onName: e => this.setState({ add: { ...add, name: e.target.value } }), onRoot: e => this.setState({ add: { ...add, root: e.target.value } }) },
+      copyLink: () => this.note('Installer link copied. Open it on the media PC.'),
+      confirmAdd: () => { const id = 'x' + Date.now(); this.setState({ modal: null, srvSel: id, extra: S.extra.concat({ id, name: add.name, kind: 'Agent', desc: 'Agent · ' + add.addr, online: true, root: add.root, addr: add.addr, version: 'Agent 1.0.2', seen: 'Now', used: 0.4, total: 2 }) }); this.note(add.name + ' added. Pick files on the seedbox and choose Download to send them there.'); },
+      draft: d, on, set, protocols: ['FTP', 'FTPS', 'SFTP'], parallelOpts: ['1', '2', '3', '4', '6', '8'], setNav,
+      scrollRef: this.r.scroll, secConn: this.r.conn, secXfer: this.r.xfer, secMeta: this.r.meta, secSvc: this.r.svc,
+      testConn: () => { this.setState({ test: 'testing' }); setTimeout(() => { const dd = this.state.draft; this.setState({ test: dd.host && dd.root && dd.user && dd.pass ? 'ok' : 'fail' }); }, 900); },
+      saveSettings: () => { const dd = S.draft; if (!dd.host || !dd.root) { this.setState({ test: 'fail' }); this.note('Settings not saved. Enter the seedbox host and media root folder.', true); return; }
+        const wasConnected = S.connected; this.setState({ settings: { ...dd }, connected: true });
+        this.note(wasConnected ? 'Settings saved. The service picks up the changes immediately.' : 'Seedbox connected. Browse the media root and download what you want on ' + local.name + '.'); },
+      revertSettings: () => this.setState({ draft: { ...S.settings }, test: null }),
+      restartService: () => this.note('Service restarted. Transfers resumed where they stopped.'),
+      sb: { conn: connected ? 'Seedbox connected · ' + S.settings.protocol : 'Seedbox not connected', connDot: connected ? 'ready' : 'error', cap: connected ? fmt(used) + ' of 1 TB' : 'Storage unknown',
+        xfer: S.paused ? 'Transfers paused' : act.length ? act.length + ' active · ' + qd.length + ' queued · ' + speed + ' MB/s' : 'No active transfers',
+        servers: multi ? servers.length + ' media servers · ' + servers.filter(s => !s.online).length + ' offline' : local.name + ' · ' + local.root },
+    };
+  }
+}
+</script>
+</body>
+</html>

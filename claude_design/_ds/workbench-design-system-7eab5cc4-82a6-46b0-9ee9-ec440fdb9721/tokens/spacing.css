@@ -1,0 +1,46 @@
+/* Exact values from source — not snapped to a 4/8 grid. */
+:root {
+  --space-1: 2px;
+  --space-2: 3px;
+  --space-3: 4px;
+  --space-4: 5px;
+  --space-5: 6px;
+  --space-6: 7px;
+  --space-7: 8px;
+  --space-8: 9px;
+  --space-9: 10px;
+  --space-10: 12px;
+  --space-11: 14px;
+  --space-12: 16px;
+  --space-13: 18px;
+  --space-14: 22px;
+  --space-15: 24px;
+
+  /* Control heights */
+  --control-h: 29px;
+  --control-h-sm: 27px;
+  --control-h-xs: 25px;
+  --control-h-xxs: 23px;
+  --control-h-chip: 22px;
+  --toolbar-button-h: 28px;
+
+  /* Chrome heights */
+  --titlebar-h: 40px;
+  --tabs-h: 38px;
+  --map-toolbar-h: 38px;
+  --problems-bar-h: 33px;
+  --statusbar-h: 25px;
+  --tree-row-h: 30px;
+  --splitter-w: 5px;
+  --sidebar-w: 330px;
+  --sidebar-min: 260px;
+  --sidebar-max: 580px;
+  --dock-w: 340px;
+  --modal-w: 430px;
+
+  /* Radii */
+  --radius-xs: 3px;   /* inputs, badges, search */
+  --radius-sm: 4px;   /* buttons, cards, rows, captions */
+  --radius-md: 6px;   /* modals */
+  --radius-dot: 50%;
+}

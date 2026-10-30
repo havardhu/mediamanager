@@ -1,0 +1,76 @@
+/* Source: areadbgenerator/src/styles.css + MapView.tsx. Dark is the default theme. */
+:root {
+  /* Base — dark */
+  --bg: #181c24;
+  --surface: #20252e;
+  --surface-2: #272d37;
+  --surface-3: #303946;
+  --border: #363e4b;
+  --text: #e1e7ef;
+  --muted: #98a5b6;
+  --accent: #72b6eb;
+  --accent-soft: #273f56;
+  --accent-fg: #152838;
+  --error: #f19f9f;
+  --warning: #c9a05d;
+  --status-pending: #dbb569;
+  --status-ready: #83c7a5;
+
+  /* Canvas / map palette (theme-independent) */
+  --canvas-water: #252f3c;
+  --canvas-land: #525963;
+  --canvas-area: #73afdf;
+  --canvas-area-fill: rgba(87, 153, 208, 0.14);
+  --canvas-lane: #7fd9c5;
+  --canvas-lane-fill: rgba(127, 217, 197, 0.16);
+  --canvas-lane-stroke: rgba(127, 217, 197, 0.55);
+  --canvas-port: #edb7ea;
+  --canvas-selected: #f3c66c;
+  --canvas-selected-fill: rgba(243, 198, 108, 0.20);
+  --canvas-boundary: #ffc96b;
+  --canvas-preview: #9ce9b4;
+  --canvas-preview-fill: rgba(80, 210, 120, 0.17);
+  --canvas-handle: #eff5ff;
+  --canvas-handle-stroke: #242b35;
+  --canvas-point-stroke: #222832;
+  --overlay-caption-bg: #1b2431ec;
+  --overlay-caption-text: #d6e1ef;
+  --overlay-caption-border: #49596e;
+  --overlay-caption-sub: #8ea2b9;
+  --overlay-live-dot: #88c3ed;
+  --overlay-control-bg: #202b3b99;
+  --overlay-control-button: #273345;
+  --overlay-control-border: #566477;
+  --scrim: #080d15aa;
+
+  /* Semantic aliases */
+  --surface-app: var(--bg);
+  --surface-panel: var(--surface);
+  --surface-chrome: var(--surface-2);
+  --surface-hover: var(--surface-3);
+  --surface-input: var(--bg);
+  --surface-selected: var(--accent-soft);
+  --surface-status: var(--accent-soft);
+  --text-body: var(--text);
+  --text-muted: var(--muted);
+  --text-accent: var(--accent);
+  --text-on-accent: var(--accent-fg);
+  --text-danger: var(--error);
+  --border-default: var(--border);
+  --border-hover: var(--muted);
+  --border-focus: var(--accent);
+}
+
+:root[data-theme="light"], [data-theme="light"] {
+  --bg: #f2f4f7;
+  --surface: #fff;
+  --surface-2: #edf0f4;
+  --surface-3: #e0e6ed;
+  --border: #cdd5df;
+  --text: #273548;
+  --muted: #5f6f83;
+  --accent: #2367a4;
+  --accent-soft: #dfecf9;
+  --accent-fg: #fff;
+  --error: #ad3535;
+}
